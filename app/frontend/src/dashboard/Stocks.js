@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
 
-// Generate Order Data
+// Generate Stocks Data
 function createData(id, date, name, volume, score, amount, correlation) {
   return { id, date, name, volume, score, amount, correlation };
 }
@@ -56,7 +56,7 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-export default function Orders() {
+export default function Stocks() {
   return (
     <React.Fragment>
       <Title>Recent Stock Prices</Title>
