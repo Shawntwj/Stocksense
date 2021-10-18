@@ -1,9 +1,9 @@
 Unnamed: 0,Unnamed: 0.1,Username,Tweet,Datetime,Number of Followers,Number of Comments,Number of Retweets,Number of Likes,cleaned Tweet,flair_sentiment,flair_sentiment_score,vader_sentiment,vader_score,finbert_sentiment,finbert_score
 0,0,SPYJared,"*U.S. SUPPORTS WAIVER OF VACCINE-PATENT PROTECTIONS AT WTO
 *PFIZER, MODERNA FALL ON U.S. SUPPORT OF VACCINE-PATENT WAIVER
-$PFE -1.9%, $MRNA -7%, $NVAXZ -7%, $VXRT -15% https://t.co/nRfOgulRpC",2021-05-05 19:17:25+00:00,5042,119,177,894,u support waiver vaccine patent protection wto pfizer moderna fall u support vaccine patent waiver pfe mrna nvaxz,NEGATIVE,0.8488,neg,0.0,neutral,0.9065850377082825
-1,1,yatesinvesting,"Ima be honest, after reading the $VXRT I think it might go nuts tomorrow. That’s big time actually.",2021-05-04 00:05:33+00:00,241724,26,18,201,ima honest read think might go nut tomorrow big time actually,POSITIVE,0.989,neg,0.0,neutral,0.6081681251525879
-2,2,Vaxart,Our oral #COVID19Vaccine candidate targeting both the S and N proteins is planned to advance to Phase 2 testing during Q2 2021. For a corporate update and to learn more about our Q4 and full year 2020 financial results visit: https://t.co/ZPuHZs119q $VXRT https://t.co/oJSTXV8Lot,2021-02-26 14:00:44+00:00,5890,34,50,227,oral candidate target n protein plan advance phase test q2 corporate update learn q4 full year financial result visit,POSITIVE,0.562,neg,0.0,neutral,0.9308916330337524
+$PFE -1.9%, $MRNA -7%, $NVAXZ -7%, $VXRT -15% https://t.co/nRfOgulRpC",2021-05-05 19:17:25+00:00,5042,119,177,894,u support waiver vaccine patent protection wto pfizer moderna fall u support vaccine patent waiver pfe mrna nvaxz,NEGATIVE,0.8488,neu,0.6597,neutral,0.9065850377082824
+1,1,yatesinvesting,"Ima be honest, after reading the $VXRT I think it might go nuts tomorrow. That’s big time actually.",2021-05-04 00:05:33+00:00,241724,26,18,201,ima honest read think might go nut tomorrow big time actually,POSITIVE,0.989,neu,0.5106,neutral,0.6081681251525879
+2,2,Vaxart,Our oral #COVID19Vaccine candidate targeting both the S and N proteins is planned to advance to Phase 2 testing during Q2 2021. For a corporate update and to learn more about our Q4 and full year 2020 financial results visit: https://t.co/ZPuHZs119q $VXRT https://t.co/oJSTXV8Lot,2021-02-26 14:00:44+00:00,5890,34,50,227,oral candidate target n protein plan advance phase test q2 corporate update learn q4 full year financial result visit,POSITIVE,0.562,neu,0.0,neutral,0.9308916330337524
 3,3,LuoshengPeng,"Stocks 2021
 
 Renewed confidence
@@ -20,9 +20,9 @@ $CCIV $CMLF $SRAC $BFLY $ACIC $BFT $IPV
 
 Keep watching
 
-$EH $VXRT",2021-02-20 22:50:56+00:00,44380,47,110,581,stock renew confidence atom resn bngo nnox mara kopn sava upst sdgr newly add multi bagger xone yi qfin tigr cvlb fuv oeg trxc best spac stock buy amp hold pipe sell cciv cmlf srac bfly acic bft ipv keep watch eh,POSITIVE,0.9933,neg,0.0,neutral,0.8419880867004395
-4,4,Vaxart,Today we announced positive preliminary data from our Phase 1 clinical trial evaluating our #OralVaccine candidate. Read press release for more details: https://t.co/OAoluJWlqd $VXRT https://t.co/k1Km1HkYVe,2021-02-03 13:42:47+00:00,5890,101,102,321,today announce positive preliminary data phase clinical trial evaluate candidate read press release detail,POSITIVE,0.9707,neg,0.0,neutral,0.8494970202445984
-5,5,Vaxart,Vaxart is developing a new generation of #OralVaccines that could provide more comprehensive protection from both infection and transmission while overcoming global distribution barriers. To learn more about our work visit: https://t.co/oN7OZnKhl2 $VXRT https://t.co/1upNH1sq0U,2021-02-02 15:39:11+00:00,5890,65,134,462,develop new generation could provide comprehensive protection infection transmission overcome global distribution barrier learn work visit,POSITIVE,0.8936,neg,0.0,positive,0.559056282043457
+$EH $VXRT",2021-02-20 22:50:56+00:00,44380,47,110,581,stock renew confidence atom resn bngo nnox mara kopn sava upst sdgr newly add multi bagger xone yi qfin tigr cvlb fuv oeg trxc best spac stock buy amp hold pipe sell cciv cmlf srac bfly acic bft ipv keep watch eh,POSITIVE,0.9933,neu,0.8176,neutral,0.8419880867004395
+4,4,Vaxart,Today we announced positive preliminary data from our Phase 1 clinical trial evaluating our #OralVaccine candidate. Read press release for more details: https://t.co/OAoluJWlqd $VXRT https://t.co/k1Km1HkYVe,2021-02-03 13:42:47+00:00,5890,101,102,321,today announce positive preliminary data phase clinical trial evaluate candidate read press release detail,POSITIVE,0.9707,neu,0.5574,neutral,0.8494970202445984
+5,5,Vaxart,Vaxart is developing a new generation of #OralVaccines that could provide more comprehensive protection from both infection and transmission while overcoming global distribution barriers. To learn more about our work visit: https://t.co/oN7OZnKhl2 $VXRT https://t.co/1upNH1sq0U,2021-02-02 15:39:11+00:00,5890,65,134,462,develop new generation could provide comprehensive protection infection transmission overcome global distribution barrier learn work visit,POSITIVE,0.8936,neu,0.128,positive,0.559056282043457
 6,6,LuoshengPeng,"Here is how the 2021 5-10X candidates have fared YTD:
 
 🥇 $BNGO +258.77%
@@ -32,12 +32,12 @@ $EH $VXRT",2021-02-20 22:50:56+00:00,44380,47,110,581,stock renew confidence ato
 🏅 $ATOM +78.50%
 🏅 $NNOX +65.97%
 
-I'm looking to adding a few more in the next week.",2021-01-30 02:08:01+00:00,44380,45,32,373,10x candidate fare ytd bngo resn mara atom nnox look add next week,NEGATIVE,0.915,neg,0.0,neutral,0.9066144824028015
+I'm looking to adding a few more in the next week.",2021-01-30 02:08:01+00:00,44380,45,32,373,10x candidate fare ytd bngo resn mara atom nnox look add next week,NEGATIVE,0.915,neu,0.0,neutral,0.9066144824028016
 7,7,wallstreetbets_,"We can all play games... 
-#WSB #wallstreetbets $GME $BB $BBBY $PLTR $NIO $BABA $TSLA $AMC $AMD $MSFT $AAPL $VXRT $KOSS $AMRN $AMZN $CATB $NOK $KODK https://t.co/3WzVj7bfCn",2021-01-29 17:52:32+00:00,58303,16,42,251,play game gme bb bbby pltr nio baba tsla amc amd msft aapl kos amrn amzn catb nok kodk,POSITIVE,0.5672,neg,0.0,neutral,0.9027164578437805
+#WSB #wallstreetbets $GME $BB $BBBY $PLTR $NIO $BABA $TSLA $AMC $AMD $MSFT $AAPL $VXRT $KOSS $AMRN $AMZN $CATB $NOK $KODK https://t.co/3WzVj7bfCn",2021-01-29 17:52:32+00:00,58303,16,42,251,play game gme bb bbby pltr nio baba tsla amc amd msft aapl kos amrn amzn catb nok kodk,POSITIVE,0.5672,neu,0.34,neutral,0.9027164578437804
 8,8,wallstreetbets_,"In one ear and out the other? 
-#WSB $GME $NVAX $SLV $SIEB $VXRT $AMC $KOSS $TSLA $PLTR $DOGE.X #dogecoin $AAPL $CATB $BABA $NIO https://t.co/6hqaKJ3r82",2021-01-29 17:21:00+00:00,58303,25,26,270,one ear gme nvax slv sieb amc kos tsla pltr doge x aapl catb baba nio,NEGATIVE,0.9886,neg,0.0,neutral,0.9029431939125061
-10,10,Vaxart,Welcome to Vaxart Twitter page! Follow us to learn more about our work to provide millions of people globally at risk of preventable #infectiousdiseases with safe and effective #oralvaccines. Visit our website: https://t.co/AomaGNUg4o $VXRT https://t.co/7HFxFCqy90,2021-01-25 18:17:05+00:00,5890,70,90,423,welcome twitter page follow u learn work provide million people globally risk preventable safe effective visit website,POSITIVE,0.8938,neg,0.0,neutral,0.9105232357978821
+#WSB $GME $NVAX $SLV $SIEB $VXRT $AMC $KOSS $TSLA $PLTR $DOGE.X #dogecoin $AAPL $CATB $BABA $NIO https://t.co/6hqaKJ3r82",2021-01-29 17:21:00+00:00,58303,25,26,270,one ear gme nvax slv sieb amc kos tsla pltr doge x aapl catb baba nio,NEGATIVE,0.9886,neu,0.0,neutral,0.902943193912506
+10,10,Vaxart,Welcome to Vaxart Twitter page! Follow us to learn more about our work to provide millions of people globally at risk of preventable #infectiousdiseases with safe and effective #oralvaccines. Visit our website: https://t.co/AomaGNUg4o $VXRT https://t.co/7HFxFCqy90,2021-01-25 18:17:05+00:00,5890,70,90,423,welcome twitter page follow u learn work provide million people globally risk preventable safe effective visit website,POSITIVE,0.8938,neu,0.7845,neutral,0.910523235797882
 11,11,LuoshengPeng,"What're your top game chgers?
 
 I'll start mine:
@@ -53,10 +53,10 @@ MASS: Handheld mass spec
 QS - EV Batteries
 LAZR - EV Lidar
 ATOM - Semi material
-OPEN - iBuying",2021-01-02 23:27:45+00:00,44380,44,50,422,top game chgers start mine twst synbio crsp gene edit pacb gene sequence oral vax nnox digital x ray lgvw handheld ultrasound tbiif eye track mass handheld mass spec q ev battery lazr ev lidar atom semi material open ibuying,POSITIVE,0.9998,neg,0.0,neutral,0.9281249046325684
+OPEN - iBuying",2021-01-02 23:27:45+00:00,44380,44,50,422,top game chgers start mine twst synbio crsp gene edit pacb gene sequence oral vax nnox digital x ray lgvw handheld ultrasound tbiif eye track mass handheld mass spec q ev battery lazr ev lidar atom semi material open ibuying,POSITIVE,0.9998,neu,0.2023,neutral,0.9281249046325684
 12,12,LuoshengPeng,"These 4 stocks can be serious candidate for 10X in 2021 in the order of increasing risk:
 
 $RESN - 5G RF filters for smartphones/IOT/EVs
 $ATOM - Material IC performance improvement
 $NNOX - Digital X-ray source for medical imaging apps
-$VXRT - Oral tablet vaccines for CV19/flu",2021-01-01 03:02:01+00:00,44380,25,42,279,stock serious candidate 10x order increase risk resn 5g rf filter smartphones iot ev atom material ic performance improvement nnox digital x ray source medical image apps oral tablet vaccine cv19 flu,POSITIVE,0.6467,neg,0.0,positive,0.5565609335899353
+$VXRT - Oral tablet vaccines for CV19/flu",2021-01-01 03:02:01+00:00,44380,25,42,279,stock serious candidate 10x order increase risk resn 5g rf filter smartphones iot ev atom material ic performance improvement nnox digital x ray source medical image apps oral tablet vaccine cv19 flu,POSITIVE,0.6467,neu,0.0772,positive,0.5565609335899353
