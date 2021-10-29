@@ -12,37 +12,33 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import { Link } from 'react-router-dom';
 export const mainListItems = (
 
-    <div>
-      <ListItem button>
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        <Link button to="/">
-          <ListItemText primary="Dashboard" />
-        </Link>
-      </ListItem>
-
-      <ListItem button>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <Link button to="/sentiments">
-          <ListItemText primary="Sentiments" />
-        </Link>
-      </ListItem>
-      <ListItem button>
-        <ListItemIcon>
-          <BarChartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Analysis" />
-      </ListItem>
-      {/* <ListItem button>
+  <div>
+    <ListItem button to="/" >
       <ListItemIcon>
-        <LayersIcon />
+        <DashboardIcon />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <Link button to="/" style={{ color: 'inherit', textDecoration: 'inherit' }}>
+        <ListItemText primary="Dashboard" />
+      </Link>
+    </ListItem>
+
+    {/* <ListItem button to="/sentiments">
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <Link button to="/sentiments" style={{ color: 'inherit', textDecoration: 'inherit' }}>
+        <ListItemText primary="Sentiments" />
+      </Link>
     </ListItem> */}
-    </div>
+    <ListItem button to="/sentiments">
+      <ListItemIcon>
+        <BarChartIcon />
+      </ListItemIcon>
+      <Link button to="/sentiments" style={{ color: 'inherit', textDecoration: 'inherit' }}>
+        <ListItemText primary="Sentiment Analysis" />
+      </Link>
+    </ListItem>
+  </div>
 
 );
 

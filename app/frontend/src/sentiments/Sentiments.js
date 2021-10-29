@@ -6,18 +6,23 @@ import Box from '@mui/material/Box';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../dashboard/listItems';
+import { Typography, Divider, TextField } from '@mui/material';
+import MenuItem from '@material-ui/core/MenuItem';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+import GaugeChart from 'react-gauge-chart'
+import ReactWordcloud from 'react-wordcloud';
+
+import Chart from './Chart';
+
+import Button from '@mui/material/Button';
 
 
 function Copyright(props) {
@@ -81,10 +86,51 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const mdTheme = createTheme();
 
+const words = [
+  {
+    text: 'told',
+    value: 64,
+  },
+  {
+    text: 'moon',
+    value: 50,
+  },
+  {
+    text: 'hold',
+    value: 100,
+  },
+  {
+    text: 'bad',
+    value: 30,
+  },
+]
+
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+
+  const [model, setModel] = React.useState('');
+  const [stock, setStock] = React.useState('');
+  const [data, setData] = React.useState('');
+  const [ml, setMl] = React.useState('');
+  const [value, onChange] = React.useState([new Date(), new Date()]);
+  const handleModelChange = (event) => {
+    setModel(event.target.value);
+  };
+
+  const handleDataChange = (event) => {
+    setData(event.target.value);
+  };
+
+  const handleMlChange = (event) => {
+    setMl(event.target.value);
+  };
+
+  const handleStockChange = (event) => {
+    setStock(event.target.value);
   };
 
   return (
@@ -153,12 +199,166 @@ function DashboardContent() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              {/* select options */}
+
+              <Grid item xs={12}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ textAlign: "left", paddingLeft: 20 }}>
+                    <Typography variant="h6">Analysis Parameters</Typography>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Grid item xs={3} style={{ paddingLeft: 20 }}>
+                      <TextField
+                        value={data}
+                        onChange={handleDataChange}
+                        select // tell TextField to render select
+                        label="Social Media"
+                        style={{ minWidth: "100%" }}
+                      >
+                        <MenuItem key={"twitter"} value="twitter">
+                          Twitter
+                        </MenuItem>
+                        <MenuItem key={"reddit"} value="reddit">
+                          Reddit
+                        </MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={3} style={{ paddingLeft: 20 }}>
+                      <TextField
+                        value={stock}
+                        onChange={handleStockChange}
+                        select // tell TextField to render select
+                        label="Stock"
+                        style={{ minWidth: "100%" }}
+                      >
+                        <MenuItem key={"AAPL"} value="AAPL">
+                          AAPL
+                        </MenuItem>
+                        <MenuItem key={"RUS"} value="RUS">
+                          RUS
+                        </MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={3} style={{ paddingLeft: 20 }}>
+                      <TextField
+                        value={model}
+                        onChange={handleModelChange}
+                        select // tell TextField to render select
+                        label="Sentiment Model"
+                        style={{ minWidth: "100%" }}
+                      >
+                        <MenuItem key={"vader"} value="vader">
+                          Vader
+                        </MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={3} style={{ paddingLeft: 20 }}>
+                      <TextField
+                        value={ml}
+                        onChange={handleMlChange}
+                        select // tell TextField to render select
+                        label="ML Model"
+                        style={{ minWidth: "100%" }}
+                      >
+                        <MenuItem key={"fbprophet"} value="fbprophet">
+                          fbprophet
+                        </MenuItem>
+
+                      </TextField>
+                    </Grid>
+                  </div>
+                  <div style={{ paddingTop: 10, flexDirection: 'row', display: "flex", alignSelf: "flex-start" }}>
+                    <Grid item xs={8} style={{ paddingLeft: 20, paddingTop: 10 }}>
+                      <DateRangePicker
+                        onChange={onChange}
+                        value={value}
+                      />
+                    </Grid>
+
+                    <Grid item xs={2} style={{ paddingLeft: 20, paddingTop: 5 }}>
+                      <Button variant="contained" size="large" style={{ width: "50%", minWidth: 100 }}>
+                        Generate
+                      </Button>
+                    </Grid>
+
+                  </div>
+                </Paper>
+              </Grid>
+              {/* model results/ correlation */}
+              <Grid item xs={12} md={8} lg={9}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    paddingLeft: 5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                    textAlign: "left"
+                  }}
+                >
+
+                  <Typography variant="h5">Results</Typography>
+                  <Grid item>
+                    Correlation Score (price and sentiment) : 0.803
+                  </Grid>
+                  <Grid item>
+                    Correlation Score (volume and sentiment) : 0.803
+                  </Grid>
+                  <Grid item>
+                    <Typography style={{ fontWeight: "bold" }}>Decision: BUY</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography style={{ fontWeight: "bold" }}>Confidence Score: 80%</Typography>
+                  </Grid>
+                  {/* <Grid item>
+                    <div style={{ height: 150 }}>
+                      <ReactWordcloud words={words} />
+                    </div>
+                  </Grid> */}
+                </Paper>
+              </Grid>
+              {/* Sentiment*/}
+              <Grid item xs={12} md={4} lg={3} >
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                    background: "#1976D2"
+                  }}
+                >
+                  <Typography variant="subtitle1" style={{ color: "white" }}>Overall Sentiment</Typography>
+                  <GaugeChart
+                    hideText={true}
+                    percent={0.78}
+                    colors={['#EA4228', '#F5CD19', '#5BE12C']}
+                  />
+                  {/* <Typography variant="h5" style={{ color: "white" }}> 0.78 </Typography> */}
+                  <Typography style={{ color: "white", fontWeight: "bold" }}> Positive </Typography>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                  }}
+                >
+                  <Chart />
+                </Paper>
+              </Grid>
+            </Grid>
 
             <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
-      </Box>
-    </ThemeProvider>
+      </Box >
+    </ThemeProvider >
   );
 }
 
