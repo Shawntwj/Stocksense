@@ -286,7 +286,7 @@ function DashboardContent() {
                 </Paper>
               </Grid>
               {/* model results/ correlation */}
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={12} md={4} lg={5}>
                 <Paper
                   sx={{
                     p: 2,
@@ -297,13 +297,14 @@ function DashboardContent() {
                     textAlign: "left"
                   }}
                 >
-
-                  <Typography variant="h5">Results</Typography>
-                  <Grid item>
-                    Correlation Score (price and sentiment) : 0.803
+                  <Grid item style={{ paddingBottom: 10 }}>
+                    <Typography variant="h6" style={{ fontWeight: "bold" }}>Results</Typography>
                   </Grid>
                   <Grid item>
-                    Correlation Score (volume and sentiment) : 0.803
+                    Correlation Score (price and sentiment): 0.803
+                  </Grid>
+                  <Grid item>
+                    Correlation Score (volume and sentiment): 0.803
                   </Grid>
                   <Grid item>
                     <Typography style={{ fontWeight: "bold" }}>Decision: BUY</Typography>
@@ -319,6 +320,25 @@ function DashboardContent() {
                 </Paper>
               </Grid>
               {/* Sentiment*/}
+              <Grid item xs={12} md={4} lg={4} >
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                    // background: "#1976D2"
+                  }}
+                >
+                  <Typography variant="h6" style={{ fontWeight: "bold" }}>Word Cloud</Typography>
+
+                  <div style={{ height: 150 }}>
+                    <ReactWordcloud words={words} />
+                  </div>
+                </Paper>
+              </Grid>
+
+              {/* Sentiment*/}
               <Grid item xs={12} md={4} lg={3} >
                 <Paper
                   sx={{
@@ -329,14 +349,14 @@ function DashboardContent() {
                     background: "#1976D2"
                   }}
                 >
-                  <Typography variant="subtitle1" style={{ color: "white" }}>Overall Sentiment</Typography>
+                  <Typography style={{ fontWeight: "bold", color: "white", paddingBottom: 5 }}>Overall Sentiment</Typography>
                   <GaugeChart
                     hideText={true}
                     percent={0.78}
                     colors={['#EA4228', '#F5CD19', '#5BE12C']}
                   />
                   {/* <Typography variant="h5" style={{ color: "white" }}> 0.78 </Typography> */}
-                  <Typography style={{ color: "white", fontWeight: "bold" }}> Positive </Typography>
+                  <Typography variant='h6' style={{ color: "white", fontWeight: "bold" }}> Positive </Typography>
                 </Paper>
               </Grid>
 
