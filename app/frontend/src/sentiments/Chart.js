@@ -11,8 +11,10 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-
+import Grid from '@mui/material/Grid';
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import { Typography } from '@mui/material';
+
 const data = [
     {
         date: "20/10/2021",
@@ -60,10 +62,22 @@ const data = [
 
 export default function Chart() {
     const theme = useTheme();
+    const [value, onChange] = React.useState([new Date(), new Date()]);
 
     return (
         <React.Fragment>
-            {/* <Typography>Timeline</Typography> */}
+
+            <Grid container spacing={3}>
+                <Grid item>
+                    <Typography variant="body1" style={{ paddingLeft: 10 }}> View Daterange:</Typography>
+                </Grid>
+                <Grid item>
+                    <DateRangePicker
+                        onChange={onChange}
+                        value={value} //default keep to 7 days or lesser
+                    />
+                </Grid>
+            </Grid>
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
                     width={500}
