@@ -6,16 +6,15 @@
 # flair
 
 import time
-import pandas as pd
+import datetime
 from flask import Flask
 from flask import jsonify
+import pandas as pd
 
 # libraries for Stocktwits
 import requests
 import json
 import os
-import datetime as datetime
-from datetime import datetime as dt
 
 # libraries for News
 from GoogleNews import GoogleNews
@@ -26,6 +25,7 @@ from newspaper import Config
 import snscrape.modules.twitter as sntwitter
 
 # libraries for Reddit
+from psaw import PushshiftAPI
 
 # libraries for clean
 import re
@@ -59,12 +59,9 @@ def first_check(symbol):
 @app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/<string:end_date>/')
 def getStocktwits(symbol, start_date, end_date):
     if (first_check(symbol)):
-
         data = []
-
-        start_date = dt.strptime(start_date, "%Y-%m-%d")
-        end_date = dt.strptime(end_date, "%Y-%m-%d")
-
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
         j = 0   # page number
 
         while end_date > start_date:
@@ -90,7 +87,7 @@ def getStocktwits(symbol, start_date, end_date):
 
                     date_created_data = timelist[0]
 
-                    start_date = dt.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     time_created_data = timelist[1][:-1]
 
@@ -121,15 +118,12 @@ def getStocktwits(symbol, start_date, end_date):
                         "source": source_data,
                         "likes": likes_data
                     })
-
             j += 1
-
         cleanedData = getCleanedContent(data)
         return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # News scraper
 def getArticleSummary(parsed_news):
-
     data=[]
     for ind in parsed_news:
         dicti={}
@@ -149,7 +143,6 @@ def getArticleSummary(parsed_news):
             else:
                 dicti['Date']=article.publish_date
                 date = article.publish_date
-
             data.append(dicti)
         except:
             pass
@@ -157,21 +150,18 @@ def getArticleSummary(parsed_news):
     return data
 
 def getGoogleNewsLinks(symbol, start_date, end_date):
-
     parsed_news = []
 
-    start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
-    end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    start_date = datetime.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
 
     googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
-
     googlenews.search(symbol)
 
     for i in range(2, 20):
         googlenews.getpage(i)
         result=googlenews.result()
         df=pd.DataFrame(result)
-        print(result)
 
     for ind in df.index:
         link = df['link'][ind]
@@ -217,15 +207,83 @@ def getTwitter(symbol, start_date, end_date):
     return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # Reddit scraper
-@app.route('/scraper/reddit/<string:symbol>/')
-def getReddit(symbol):
-    pass
+def reddit_sentiment_comment(search, start, end, subreddit):
+    api = PushshiftAPI()
 
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    comments = []
+
+    S = api.search_comments(subreddit=subreddit, after=s, before=e)  # Pull posts within date range
+    for comment in S:  # Looping through each post
+        try: # Try/except to catch any erroneous post pulls
+            if comment.body != '[removed]' and comment.body != '[deleted]' and search[0] in comment.body or search[1] in comment.body or search[2] in comment.body or search[3] in comment.body or search[4] in comment.body: # Remove the deleted posts
+                comments.append({
+                    'content':comment.body,
+                    'username':comment.author_fullname,
+                    'score':comment.score,
+                    'comment_id':comment.id,
+                    'subreddit':comment.subreddit,
+                    'parent_id':comment.parent_id,
+                    'created':datetime.datetime.fromtimestamp(comment.created)
+                })  # Retrieve post data and append to dataframe
+        except:
+            continue # Continue loop if error is found
+
+    return comments
+
+def reddit_sentiment_post(search, start, end, subreddit):
+    api = PushshiftAPI()
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    posts = []
+
+    S = api.search_submissions(subreddit=subreddit, after=s, before=e) # Pull posts within date range
+
+    for post in S:  # Looping through each post
+        try: # Try/except to catch any erroneous post pulls
+            if post.title != '[removed]' and post.title != '[deleted]'and search[0] in post.title or search[1] in post.title or search[2] in post.title or search[3] in post.title or search[4] in post.title:
+                posts.append({
+                    'title':post.title,
+                    'score':post.score,
+                    'upvote_ratio':post.upvote_ratio,
+                    'id':post.id,
+                    'subreddit':post.subreddit,
+                    'url':post.url,
+                    'num_comments':post.num_comments,
+                    'content':post.selftext,
+                    'created':datetime.datetime.fromtimestamp(post.created)
+                })  # Retrieve post data and append to dataframe
+        except:
+            continue # Continue loop if error is found
+
+    return posts
+
+@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/<string:end_date>/')
+def getRedditComments(symbol, start_date, end_date):
+    """date format is %d/%m/%Y"""
+    start_date = start_date.replace('-', '/')
+    end_date = end_date.replace('-', '/')
+    data = reddit_sentiment_comment(symbol, start_date, end_date, "stocks")
+    cleanedData = getCleanedContent(data)
+    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+
+@app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/<string:end_date>/')
+def getRedditPosts(symbol, start_date, end_date):
+    """date format is %d/%m/%Y"""
+    start_date = start_date.replace('-', '/')
+    end_date = end_date.replace('-', '/')
+    data = reddit_sentiment_post(symbol, start_date, end_date, "stocks")
+    cleanedData = getCleanedContent(data)
+    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # Clean
 def getCleanedContent(data):
     cleaned_data = []
-
     for item in data:
         item["content"] = item["content"].lower()
         item["content"] = remove_hashtag_mentions_urls(item["content"])
@@ -233,7 +291,6 @@ def getCleanedContent(data):
         item["content"] = tokenization(item["content"])
         item["content"] = ' '.join(item["content"])
         cleaned_data.append(item)
-
     return cleaned_data
 
 def remove_hashtag_mentions_urls(text):
@@ -248,7 +305,6 @@ def remove_emoji(text):
     u"\U00002702-\U000027B0"
     u"\U000024C2-\U0001F251"
     "]+", flags=re.UNICODE)
-
     return emoji_pattern.sub(r'', text)
 
 def tokenization(text):
