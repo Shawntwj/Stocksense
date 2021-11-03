@@ -8,8 +8,7 @@
     # psaw
 
 import time
-import datetime as datetime
-from datetime import datetime as dt
+import datetime
 from flask import Flask
 from flask import jsonify
 import pandas as pd
@@ -65,8 +64,8 @@ def first_check(symbol):
 def getStocktwits(symbol, start_date, end_date):
     if (first_check(symbol)):
         data = []
-        start_date = dt.strptime(start_date, "%Y-%m-%d")
-        end_date = dt.strptime(end_date, "%Y-%m-%d")
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
         j = 0   # page number
 
         while end_date >= start_date:
@@ -92,7 +91,7 @@ def getStocktwits(symbol, start_date, end_date):
 
                     date_created_data = timelist[0]
 
-                    start_date = dt.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     time_created_data = timelist[1][:-1]
 
@@ -124,9 +123,7 @@ def getStocktwits(symbol, start_date, end_date):
                         "likes": likes_data
                     })
             j += 1
-        cleanedData = getCleanedContent(data)
-        sentimentData = getDataSentiment(cleanedData)
-        return jsonify({"data": sentimentData})
+        return getResponse(data)
 
 # News scraper - NOT TESTED YET!!!!
 def getArticleSummary(parsed_news):
@@ -158,8 +155,8 @@ def getArticleSummary(parsed_news):
 def getGoogleNewsLinks(symbol, start_date, end_date):
     parsed_news = []
 
-    start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
-    end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
 
     googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
     googlenews.search(symbol)
@@ -183,14 +180,11 @@ def getNews(symbol, start_date, end_date):
 
     parsed_news = getGoogleNewsLinks(symbol, start_date, end_date)
     data = getArticleSummary(parsed_news)
-
-    cleanedData = getCleanedContent(data)
-    sentimentData = getDataSentiment(cleanedData)
-    return jsonify({"data": sentimentData})
+    return getResponse(data)
 
 # Twitter scraper
-@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getTwitter(symbol, start_date, end_date):
+@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/')
+def getTwitter(symbol, start_date):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
     - assumes date format to be YYYY-MM-DD
@@ -198,6 +192,7 @@ def getTwitter(symbol, start_date, end_date):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
+    end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
@@ -210,18 +205,16 @@ def getTwitter(symbol, start_date, end_date):
                 "shares": tweet.retweetCount,
                 "likes": tweet.likeCount
             })
-    cleanedData = getCleanedContent(data)
-    sentimentData = getDataSentiment(cleanedData)
-    return jsonify({"data": sentimentData})
+    return getResponse(data)
 
 # Reddit scraper
 def reddit_sentiment_comment(search, start, end, subreddit):
     api = PushshiftAPI()
 
-    s = dt.strptime(start, '%d/%m/%Y')
-    e = dt.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(dt.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(dt.strptime(end, "%d/%m/%Y").timetuple())
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
     comments = []
 
     S = api.search_comments(subreddit=subreddit, after=s, before=e)  # Pull posts within date range
@@ -235,7 +228,7 @@ def reddit_sentiment_comment(search, start, end, subreddit):
                     'comment_id':comment.id,
                     'subreddit':comment.subreddit,
                     'parent_id':comment.parent_id,
-                    'created':dt.fromtimestamp(comment.created)
+                    'created':datetime.datetime.fromtimestamp(comment.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
@@ -244,10 +237,10 @@ def reddit_sentiment_comment(search, start, end, subreddit):
 
 def reddit_sentiment_post(search, start, end, subreddit):
     api = PushshiftAPI()
-    s = dt.strptime(start, '%d/%m/%Y')
-    e = dt.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(dt.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(dt.strptime(end, "%d/%m/%Y").timetuple())
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
     posts = []
 
     S = api.search_submissions(subreddit=subreddit, after=s, before=e) # Pull posts within date range
@@ -264,33 +257,31 @@ def reddit_sentiment_post(search, start, end, subreddit):
                     'url':post.url,
                     'num_comments':post.num_comments,
                     'content':post.selftext,
-                    'created':dt.fromtimestamp(post.created)
+                    'created':datetime.datetime.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
 
     return posts
 
-def getReddit(redditType, symbol, start_date, end_date):
+def getReddit(redditType, symbol, start_date):
     """convert date format to %d/%m/%Y"""
     start = "/".join(start_date.split("-")[::-1])
-    end = "/".join(end_date.split("-")[::-1])
+    end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
     sub = "stocks"
     if redditType == "comment":
         data = reddit_sentiment_comment(symbol, start, end, sub)
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start, end, sub)
-    cleanedData = getCleanedContent(data)
-    sentimentData = getDataSentiment(cleanedData)
-    return jsonify({"data": sentimentData})
+    return getResponse(data)
 
-@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getRedditComments(symbol, start_date, end_date):
-    return getReddit("comment", symbol, start_date, end_date)
+@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/')
+def getRedditComments(symbol, start_date):
+    return getReddit("comment", symbol, start_date)
 
-@app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getRedditPosts(symbol, start_date, end_date):
-    return getReddit("post", symbol, start_date, end_date)
+@app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/')
+def getRedditPosts(symbol, start_date):
+    return getReddit("post", symbol, start_date)
 
 # Clean
 def getCleanedContent(data):
@@ -334,7 +325,6 @@ def flair_sentiment(data):
 
         row["flair_sentiment"] = sentiment
         row["flair_sentiment_score"] = score
-
     return data
 
 def vader_sentiment(data):
@@ -366,6 +356,12 @@ def getDataSentiment(data):
     data = finbert_sentiment(data)
     return data
 
+# Helper
+def getResponse(data):
+    cleanedData = getCleanedContent(data)
+    sentimentData = cleanedData
+    sentimentData = getDataSentiment(cleanedData)
+    return jsonify({"data": sentimentData})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
