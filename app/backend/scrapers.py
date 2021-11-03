@@ -15,26 +15,22 @@ from datetime import datetime as dt
 app = Flask(__name__)
 
 
-@app.route('/stocktwits/<string:symbol>/')
-    # methods go here
-    def getStocktwits(symbol)
+@app.route('/scraper/stocktwits/<string:symbol>/')
+def getStocktwits(symbol):
     pass
 
-@app.route('/news/<string:symbol>/')
-    # methods go here
-    def getNews(symbol)
+@app.route('/scraper/news/<string:symbol>/')
+def getNews(symbol):
     pass
 
-@app.route('/twitter/<string:symbol>/')
-    # methods go here
-    def getTwitter(symbol)
+@app.route('/scraper/twitter/<string:symbol>/')
+def getTwitter(symbol):
     pass
 
-@app.route('/reddit/<string:symbol>/')
-    # methods go here
-    def getReddit(symbol)
+@app.route('/scraper/reddit/<string:symbol>/')
+def getReddit(symbol):
     pass
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)  # run our Flask app
+    app.run(host='0.0.0.0', port=8000)
