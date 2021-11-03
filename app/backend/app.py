@@ -5,6 +5,7 @@
     # newspaper3k
     # flair
     # happytransformer
+    # psaw
 
 import time
 import datetime as datetime
@@ -280,7 +281,8 @@ def getReddit(redditType, symbol, start_date, end_date):
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start, end, sub)
     cleanedData = getCleanedContent(data)
-    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+    sentimentData = getDataSentiment(cleanedData)
+    return jsonify({"data": sentimentData})
 
 @app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/<string:end_date>/')
 def getRedditComments(symbol, start_date, end_date):
