@@ -21,8 +21,7 @@ import GaugeChart from 'react-gauge-chart'
 import ReactWordcloud from 'react-wordcloud';
 
 import Chart from './Chart';
-
-import Button from '@mui/material/Button';
+import Button from 'react-bootstrap/Button';
 
 
 function Copyright(props) {
@@ -133,6 +132,10 @@ function DashboardContent() {
     setStock(event.target.value);
   };
 
+  const handleClick = () => {
+    console.log(stock, model, value, ml, data);
+   
+  }
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -204,7 +207,7 @@ function DashboardContent() {
 
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ textAlign: "left", paddingLeft: 20 }}>
+                  <div style={{ textAlign: "left", paddingLeft: 20, paddingBottom: 10 }}>
                     <Typography variant="h6">Analysis Parameters</Typography>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -269,15 +272,20 @@ function DashboardContent() {
                     </Grid>
                   </div>
                   <div style={{ paddingTop: 10, flexDirection: 'row', display: "flex", alignSelf: "flex-start" }}>
-                    <Grid item xs={8} style={{ paddingLeft: 20, paddingTop: 10 }}>
+                    <Grid item style={{ paddingLeft: 20, paddingTop: 10 }}>
                       <DateRangePicker
                         onChange={onChange}
                         value={value}
                       />
                     </Grid>
 
-                    <Grid item xs={2} style={{ paddingLeft: 20, paddingTop: 5 }}>
-                      <Button variant="contained" size="large" style={{ width: "50%", minWidth: 100 }}>
+                    <Grid item style={{ paddingLeft: 20, paddingTop: 5 }}>
+                      {/* <Button variant="contained" size="large" style={{ width: "50%", minWidth: 100 }}>
+                        Generate
+                      </Button> */}
+                      <Button onClick={handleClick}
+                        style={{ backgroundColor: "#1976D2", padding: "12px 32px", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}
+                      >
                         Generate
                       </Button>
                     </Grid>
