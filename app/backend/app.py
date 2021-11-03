@@ -324,7 +324,7 @@ def tokenization(text):
     return tokenized_text
 
 # Sentiment
-def flair_senitment(data):
+def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
     for row in data:
         s = flair.data.Sentence(row["content"])
@@ -337,7 +337,7 @@ def flair_senitment(data):
 
     return data
 
-def vader_senitment(data):
+def vader_sentiment(data):
     sia = SentimentIntensityAnalyzer()  # Load model
     for row in data:
         vs = sia.polarity_scores(row["content"])
@@ -349,7 +349,7 @@ def vader_senitment(data):
         row['vader_score'] = score
     return data
 
-def finbert_senitment(data):
+def finbert_sentiment(data):
     happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)  # Load model
     for row in data:
         result = happy_tc.classify_text(row["content"])
@@ -361,9 +361,9 @@ def finbert_senitment(data):
     return data
 
 def getDataSentiment(data):
-    data = flair_senitment(data)
-    data = vader_senitment(data)
-    data = finbert_senitment(data)
+    data = flair_sentiment(data)
+    data = vader_sentiment(data)
+    data = finbert_sentiment(data)
     return data
 
 
