@@ -40,7 +40,7 @@ import numpy as np
 # libraries for sentiment analysis
 import flair
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from happytransformer import HappyTextClassification 
+from happytransformer import HappyTextClassification
 
 
 app = Flask(__name__)
@@ -187,7 +187,7 @@ def getNews(symbol, start_date, end_date):
     return jsonify({"data": sentimentData})
 
 # Twitter scraper
-@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>')
+@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>/')
 def getTwitter(symbol, start_date, end_date):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
@@ -269,23 +269,25 @@ def reddit_sentiment_post(search, start, end, subreddit):
 
     return posts
 
-@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getRedditComments(symbol, start_date, end_date):
-    """date format is %d/%m/%Y"""
-    start_date = start_date.replace('-', '/')
-    end_date = end_date.replace('-', '/')
-    data = reddit_sentiment_comment(symbol, start_date, end_date, "stocks")
+def getReddit(redditType, symbol, start_date, end_date):
+    """convert date format to %d/%m/%Y"""
+    start = "/".join(start_date.split("-")[::-1])
+    end = "/".join(end_date.split("-")[::-1])
+    sub = "stocks"
+    if redditType == "comment":
+        data = reddit_sentiment_comment(symbol, start, end, sub)
+    elif  redditType == "post":
+        data = reddit_sentiment_post(symbol, start, end, sub)
     cleanedData = getCleanedContent(data)
     return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
+@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/<string:end_date>/')
+def getRedditComments(symbol, start_date, end_date):
+    return getReddit("comment", symbol, start_date, end_date)
+
 @app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/<string:end_date>/')
 def getRedditPosts(symbol, start_date, end_date):
-    """date format is %d/%m/%Y"""
-    start_date = start_date.replace('-', '/')
-    end_date = end_date.replace('-', '/')
-    data = reddit_sentiment_post(symbol, start_date, end_date, "stocks")
-    cleanedData = getCleanedContent(data)
-    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+    return getReddit("post", symbol, start_date, end_date)
 
 # Clean
 def getCleanedContent(data):
@@ -323,7 +325,7 @@ def flair_senitment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
     for row in data:
         s = flair.data.Sentence(row["content"])
-        flair_sentiment.predict(s) 
+        flair_sentiment.predict(s)
         sentiment = str(s.labels[0]).split()[0]
         score = str(s.labels[0]).split()[1][1:-1]
 
@@ -342,7 +344,6 @@ def vader_senitment(data):
 
         row['vader_sentiment'] = sentiment
         row['vader_score'] = score
-    
     return data
 
 def finbert_senitment(data):
@@ -354,11 +355,10 @@ def finbert_senitment(data):
 
         row['finbert_sentiment'] = sentiment
         row['finbert_score'] = score
-    
     return data
 
 def getDataSentiment(data):
-    data = flair_senitment(data) 
+    data = flair_senitment(data)
     data = vader_senitment(data)
     data = finbert_senitment(data)
     return data
