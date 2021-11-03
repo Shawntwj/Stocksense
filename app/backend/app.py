@@ -3,12 +3,12 @@
 # git+https://github.com/JustAnotherArchivist/snscrape.git
 # GoogleNews
 # newspaper3k
+# flair
 
+import time
+import pandas as pd
 from flask import Flask
 from flask import jsonify
-import pandas as pd
-import ast
-import time
 
 # libraries for Stocktwits
 import requests
@@ -26,6 +26,18 @@ from newspaper import Config
 import snscrape.modules.twitter as sntwitter
 
 # libraries for Reddit
+
+# libraries for clean
+import re
+import nltk
+from nltk import word_tokenize
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+import numpy as np
+
+# libraries for sentiment analysis
+import flair
 
 
 app = Flask(__name__)
@@ -53,7 +65,7 @@ def getStocktwits(symbol, start_date, end_date):
         start_date = dt.strptime(start_date, "%Y-%m-%d")
         end_date = dt.strptime(end_date, "%Y-%m-%d")
 
-        j = 0
+        j = 0   # page number
 
         while end_date > start_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
@@ -110,10 +122,10 @@ def getStocktwits(symbol, start_date, end_date):
                         "likes": likes_data
                     })
 
-            print(j,"page done")
             j += 1
 
-        return jsonify({"data": data})
+        cleanedData = getCleanedContent(data)
+        return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # News scraper
 def getArticleSummary(parsed_news):
@@ -133,15 +145,15 @@ def getArticleSummary(parsed_news):
             dicti['Summary']=article.summary
             dicti['Link']=ind[1]
             if article.publish_date == None:
-                dicti['Date'] = date
+                dicti['Date']=date
             else:
-                dicti['Date']= article.publish_date
+                dicti['Date']=article.publish_date
                 date = article.publish_date
-            
+
             data.append(dicti)
         except:
             pass
-    
+
     return data
 
 def getGoogleNewsLinks(symbol, start_date, end_date):
@@ -150,21 +162,21 @@ def getGoogleNewsLinks(symbol, start_date, end_date):
 
     start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
     end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
-    
+
     googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
 
     googlenews.search(symbol)
-    
+
     for i in range(2, 20):
         googlenews.getpage(i)
         result=googlenews.result()
         df=pd.DataFrame(result)
         print(result)
-    
+
     for ind in df.index:
         link = df['link'][ind]
         parsed_news.append([symbol, link])
-    
+
     return parsed_news
 
 @app.route('/scraper/news/<string:symbol>/<string:start_date>/<string:end_date>/')
@@ -176,7 +188,8 @@ def getNews(symbol, start_date, end_date):
     parsed_news = getGoogleNewsLinks(symbol, start_date, end_date)
     data = getArticleSummary(parsed_news)
 
-    return jsonify({"data": data})
+    cleanedData = getCleanedContent(data)
+    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # Twitter scraper
 @app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>')
@@ -190,23 +203,63 @@ def getTwitter(symbol, start_date, end_date):
     data = []
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
-        print(tweet.content)
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
             data.append({
                 "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
-                'followers': tweet.user.followersCount,
-                'comments': tweet.replyCount,
-                'shares': tweet.retweetCount,
-                'likes': tweet.likeCount
+                "followers": tweet.user.followersCount,
+                "comments": tweet.replyCount,
+                "shares": tweet.retweetCount,
+                "likes": tweet.likeCount
             })
-    return jsonify({"data": data})
+    cleanedData = getCleanedContent(data)
+    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
 
 # Reddit scraper
 @app.route('/scraper/reddit/<string:symbol>/')
 def getReddit(symbol):
     pass
+
+
+# Clean
+def getCleanedContent(data):
+    cleaned_data = []
+
+    for item in data:
+        item["content"] = item["content"].lower()
+        item["content"] = remove_hashtag_mentions_urls(item["content"])
+        item["content"] = remove_emoji(item["content"])
+        item["content"] = tokenization(item["content"])
+        item["content"] = ' '.join(item["content"])
+        cleaned_data.append(item)
+
+    return cleaned_data
+
+def remove_hashtag_mentions_urls(text):
+    return re.sub(r"(?:\@|\#|https?\://)\S+", "", text)
+
+def remove_emoji(text):
+    emoji_pattern = re.compile("["
+    u"\U0001F600-\U0001F64F"  # emoticons
+    u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+    u"\U0001F680-\U0001F6FF"  # transport & map symbols
+    u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    u"\U00002702-\U000027B0"
+    u"\U000024C2-\U0001F251"
+    "]+", flags=re.UNICODE)
+
+    return emoji_pattern.sub(r'', text)
+
+def tokenization(text):
+    word_tokenizer = RegexpTokenizer(r'[-\'\w]+')
+    tokenized_text = word_tokenizer.tokenize(text)
+    return tokenized_text
+
+# Sentiment
+def getDataSentiment(data):
+    sentiment_model = flair.models.TextClassifier.load('en-sentiment')  # Load model
+    return ''
 
 
 if __name__ == '__main__':
