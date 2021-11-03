@@ -126,12 +126,11 @@ def getTwitter(symbol, start_date, end_date):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
-    items = sntwitter.TwitterSearchScraper("{symbol} since:{start_date} until:{end_date}").get_items()
+    items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
-        print(tweet)
+        print(tweet.content)
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
             data.append({
-                "id": i,
                 "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
