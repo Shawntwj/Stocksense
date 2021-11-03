@@ -1,31 +1,40 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
+from flask import jsonify
 import pandas as pd
 import ast
+
+# libraries for stocktwits
+import requests
+import json
+import time
+import os
+import datetime as datetime
+from datetime import datetime as dt
+
+
 app = Flask(__name__)
-api = Api(app)
 
-class Stocktwits(Resource):
+
+@app.route('/stocktwits/<string:symbol>/')
     # methods go here
-    pass
-    
-class News(Resource):
-    # methods go here
+    def getStocktwits(symbol)
     pass
 
-class Twitter(Resource):
-# methods go here
-pass
-    
-class Reddit(Resource):
+@app.route('/news/<string:symbol>/')
     # methods go here
+    def getNews(symbol)
     pass
-    
-api.add_resource(Stocktwits, '/stocktwits')  # entry point for Stocktwits
-api.add_resource(News, '/news')  # entry point for News
-api.add_resource(Twitter, '/twitter')  # entry point for Stocktwits
-api.add_resource(Reddit, '/reddit')  # entry point for News
+
+@app.route('/twitter/<string:symbol>/')
+    # methods go here
+    def getTwitter(symbol)
+    pass
+
+@app.route('/reddit/<string:symbol>/')
+    # methods go here
+    def getReddit(symbol)
+    pass
 
 
 if __name__ == '__main__':
-    app.run()  # run our Flask app
+    app.run(host='0.0.0.0', port=8000)  # run our Flask app
