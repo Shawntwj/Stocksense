@@ -1,11 +1,13 @@
-# remember to pip install:
+#remember to pip install:
 # flask
+# git+https://github.com/JustAnotherArchivist/snscrape.git
+
 from flask import Flask
 from flask import jsonify
 import pandas as pd
 import ast
 
-# libraries for stocktwits
+# libraries for Stocktwits
 import requests
 import json
 import time
@@ -13,9 +15,22 @@ import os
 import datetime as datetime
 from datetime import datetime as dt
 
+# libraries for News
+
+# libraries for Twitter
+import snscrape.modules.twitter as sntwitter
+
+# libraries for Reddit
+
 
 app = Flask(__name__)
 
+
+@app.route('/')
+def healthCheck():
+    return 200
+
+# Stocktwits scraper
 def first_check(symbol):
     url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=20"
     req = requests.get(url)
@@ -23,7 +38,6 @@ def first_check(symbol):
     if data_dict["response"]["status"] == 200:
         return True
     return False
-
 
 @app.route('/scraper/stocktwits/<string:symbol>/')
 def getStocktwits(symbol):
@@ -97,14 +111,38 @@ def getStocktwits(symbol):
 
         return jsonify(scraped_data)
 
+# News scraper
 @app.route('/scraper/news/<string:symbol>/')
 def getNews(symbol):
     pass
 
-@app.route('/scraper/twitter/<string:symbol>/')
-def getTwitter(symbol):
-    pass
+# Twitter scraper
+@app.route('/scraper/twitter/<string:query>/<string:start_date>/<string:end_date>')
+def getTwitter(query, start_date, end_date):
+    """
+    Using TwitterSearchScraper to scrape data and append tweets to list
+    - assumes date format to be YYYY-MM-DD
+    - end date exclusive for twitter
+    - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
+    """
+    data = []
+    items = sntwitter.TwitterSearchScraper("{query} since:{start_date} until:{end_date}").get_items()
+    for i,tweet in enumerate(items):
+        print(tweet)
+        if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
+            data.append({
+                "id": i,
+                "username": tweet.user.username,
+                "content": tweet.content,
+                "datetime": tweet.date,
+                'followers': tweet.user.followersCount,
+                'comments': tweet.replyCount,
+                'shares': tweet.retweetCount,
+                'likes': tweet.likeCount
+            })
+    return jsonify({"data": data})
 
+# Reddit scraper
 @app.route('/scraper/reddit/<string:symbol>/')
 def getReddit(symbol):
     pass
