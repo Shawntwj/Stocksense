@@ -1,21 +1,26 @@
 #remember to pip install:
 # flask
 # git+https://github.com/JustAnotherArchivist/snscrape.git
+# GoogleNews
+# newspaper3k
 
 from flask import Flask
 from flask import jsonify
 import pandas as pd
 import ast
+import time
 
 # libraries for Stocktwits
 import requests
 import json
-import time
 import os
 import datetime as datetime
 from datetime import datetime as dt
 
 # libraries for News
+from GoogleNews import GoogleNews
+from newspaper import Article
+from newspaper import Config
 
 # libraries for Twitter
 import snscrape.modules.twitter as sntwitter
@@ -39,18 +44,18 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/scraper/stocktwits/<string:symbol>/')
-def getStocktwits(symbol):
+@app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/<string:end_date>/')
+def getStocktwits(symbol, start_date, end_date):
     if (first_check(symbol)):
 
-        scraped_data = { "data": [] }
+        data = []
 
-        post_date = dt.now()
-        previous = post_date - datetime.timedelta(days=1)
+        start_date = dt.strptime(start_date, "%Y-%m-%d")
+        end_date = dt.strptime(end_date, "%Y-%m-%d")
 
         j = 0
 
-        while post_date > previous:
+        while end_date > start_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
 
             if j > 0:
@@ -72,9 +77,8 @@ def getStocktwits(symbol):
                     timelist = time.split("T")
 
                     date_created_data = timelist[0]
-                    print(date_created_data)
 
-                    post_date = dt.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = dt.strptime(date_created_data, "%Y-%m-%d")
 
                     time_created_data = timelist[1][:-1]
 
@@ -92,7 +96,7 @@ def getStocktwits(symbol):
                     postid = data_dict["cursor"]["max"]
                     postid = "&max=" + str(postid)
 
-                    scraped_data["data"].append({
+                    data.append({
                         "person_id": person_id_data,
                         "content": content_data,
                         "date_created": date_created_data,
@@ -109,12 +113,70 @@ def getStocktwits(symbol):
             print(j,"page done")
             j += 1
 
-        return jsonify(scraped_data)
+        return jsonify({"data": data})
 
 # News scraper
-@app.route('/scraper/news/<string:symbol>/')
-def getNews(symbol):
-    pass
+def getArticleSummary(parsed_news):
+
+    data=[]
+    for ind in parsed_news:
+        dicti={}
+        article = Article(ind[1],config=config)
+        try:
+            article.download()
+            article.parse()
+            article.nlp()
+
+            dicti['Ticker']=ind[0]
+            dicti['Title']=article.title
+            dicti['Article']=article.text
+            dicti['Summary']=article.summary
+            dicti['Link']=ind[1]
+            if article.publish_date == None:
+                dicti['Date'] = date
+            else:
+                dicti['Date']= article.publish_date
+                date = article.publish_date
+            
+            data.append(dicti)
+        except:
+            pass
+    
+    return data
+
+def getGoogleNewsLinks(symbol, start_date, end_date):
+
+    parsed_news = []
+
+    start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    
+    googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
+
+    googlenews.search(symbol)
+    
+    for i in range(2, 20):
+        googlenews.getpage(i)
+        result=googlenews.result()
+        df=pd.DataFrame(result)
+        print(result)
+    
+    for ind in df.index:
+        link = df['link'][ind]
+        parsed_news.append([symbol, link])
+    
+    return parsed_news
+
+@app.route('/scraper/news/<string:symbol>/<string:start_date>/<string:end_date>/')
+def getNews(symbol, start_date, end_date):
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+    config = Config()
+    config.browser_user_agent = user_agent
+
+    parsed_news = getGoogleNewsLinks(symbol, start_date, end_date)
+    data = getArticleSummary(parsed_news)
+
+    return jsonify({"data": data})
 
 # Twitter scraper
 @app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>')
