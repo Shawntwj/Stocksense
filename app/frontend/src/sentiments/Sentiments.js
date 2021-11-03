@@ -16,9 +16,11 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { mainListItems, secondaryListItems } from '../dashboard/listItems';
 import { Typography, Divider, TextField } from '@mui/material';
 import MenuItem from '@material-ui/core/MenuItem';
-import DateRangePicker from '@wojtekmaj/react-daterange-picker';
 import GaugeChart from 'react-gauge-chart'
 import ReactWordcloud from 'react-wordcloud';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DatePicker from '@mui/lab/DatePicker';
 
 import Chart from './Chart';
 import Button from 'react-bootstrap/Button';
@@ -115,7 +117,7 @@ function DashboardContent() {
   const [stock, setStock] = React.useState('');
   const [data, setData] = React.useState('');
   const [ml, setMl] = React.useState('');
-  const [value, onChange] = React.useState([new Date(), new Date()]);
+  const [value, setValue] = React.useState(new Date());
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
@@ -134,7 +136,7 @@ function DashboardContent() {
 
   const handleClick = () => {
     console.log(stock, model, value, ml, data);
-   
+
   }
   return (
     <ThemeProvider theme={mdTheme}>
@@ -273,18 +275,24 @@ function DashboardContent() {
                   </div>
                   <div style={{ paddingTop: 10, flexDirection: 'row', display: "flex", alignSelf: "flex-start" }}>
                     <Grid item style={{ paddingLeft: 20, paddingTop: 10 }}>
-                      <DateRangePicker
-                        onChange={onChange}
-                        value={value}
-                      />
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                          label="Date"
+                          value={value}
+                          onChange={(newValue) => {
+                            setValue(newValue);
+                          }}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </LocalizationProvider>
                     </Grid>
 
-                    <Grid item style={{ paddingLeft: 20, paddingTop: 5 }}>
+                    <Grid item style={{ paddingLeft: 20, paddingTop: 12 }}>
                       {/* <Button variant="contained" size="large" style={{ width: "50%", minWidth: 100 }}>
                         Generate
                       </Button> */}
                       <Button onClick={handleClick}
-                        style={{ backgroundColor: "#1976D2", padding: "12px 32px", color: "white", border: "none", borderRadius: 5, cursor: "pointer" }}
+                        style={{ backgroundColor: "#1976D2", padding: "16px 35px", color: "white", border: "none", borderRadius: 5, cursor: "pointer" , fontSize: 16}}
                       >
                         Generate
                       </Button>
