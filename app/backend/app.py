@@ -1,9 +1,10 @@
-#remember to pip install:
-# flask
-# git+https://github.com/JustAnotherArchivist/snscrape.git
-# GoogleNews
-# newspaper3k
-# flair
+# remember to pip install:
+    # flask
+    # git+https://github.com/JustAnotherArchivist/snscrape.git
+    # GoogleNews
+    # newspaper3k
+    # flair
+    # happytransformer
 
 import time
 import pandas as pd
@@ -38,6 +39,8 @@ import numpy as np
 
 # libraries for sentiment analysis
 import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from happytransformer import HappyTextClassification 
 
 
 app = Flask(__name__)
@@ -67,7 +70,7 @@ def getStocktwits(symbol, start_date, end_date):
 
         j = 0   # page number
 
-        while end_date > start_date:
+        while end_date >= start_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
 
             if j > 0:
@@ -125,9 +128,10 @@ def getStocktwits(symbol, start_date, end_date):
             j += 1
 
         cleanedData = getCleanedContent(data)
-        return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+        sentimentData = getDataSentiment(cleanedData)
+        return jsonify({"data": sentimentData})
 
-# News scraper
+# News scraper - NOT TESTED YET!!!!
 def getArticleSummary(parsed_news):
 
     data=[]
@@ -139,15 +143,15 @@ def getArticleSummary(parsed_news):
             article.parse()
             article.nlp()
 
-            dicti['Ticker']=ind[0]
-            dicti['Title']=article.title
-            dicti['Article']=article.text
-            dicti['Summary']=article.summary
-            dicti['Link']=ind[1]
+            dicti['ticker']=ind[0]
+            dicti['title']=article.title
+            dicti['content']=article.text
+            dicti['summary']=article.summary
+            dicti['link']=ind[1]
             if article.publish_date == None:
-                dicti['Date']=date
+                dicti['date']=date
             else:
-                dicti['Date']=article.publish_date
+                dicti['date']=article.publish_date
                 date = article.publish_date
 
             data.append(dicti)
@@ -189,7 +193,8 @@ def getNews(symbol, start_date, end_date):
     data = getArticleSummary(parsed_news)
 
     cleanedData = getCleanedContent(data)
-    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+    sentimentData = getDataSentiment(cleanedData)
+    return jsonify({"data": sentimentData})
 
 # Twitter scraper
 @app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>')
@@ -214,7 +219,8 @@ def getTwitter(symbol, start_date, end_date):
                 "likes": tweet.likeCount
             })
     cleanedData = getCleanedContent(data)
-    return jsonify({"data": cleanedData, "sentiment": getDataSentiment(cleanedData)})
+    sentimentData = getDataSentiment(cleanedData)
+    return jsonify({"data": sentimentData})
 
 # Reddit scraper
 @app.route('/scraper/reddit/<string:symbol>/')
@@ -257,9 +263,49 @@ def tokenization(text):
     return tokenized_text
 
 # Sentiment
+def flair_senitment(data):
+    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
+    for row in data:
+        s = flair.data.Sentence(row["content"])
+        flair_sentiment.predict(s) 
+        sentiment = str(s.labels[0]).split()[0]
+        score = str(s.labels[0]).split()[1][1:-1]
+
+        row["flair_sentiment"] = sentiment
+        row["flair_sentiment_score"] = score
+
+    return data
+
+def vader_senitment(data):
+    sia = SentimentIntensityAnalyzer()  # Load model
+    for row in data:
+        vs = sia.polarity_scores(row["content"])
+        score = vs["compound"]
+        del vs['compound']
+        sentiment = max(vs, key=vs.get)
+
+        row['vader_sentiment'] = sentiment
+        row['vader_score'] = score
+    
+    return data
+
+def finbert_senitment(data):
+    happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)  # Load model
+    for row in data:
+        result = happy_tc.classify_text(row["content"])
+        sentiment = result.label
+        score = result.score
+
+        row['finbert_sentiment'] = sentiment
+        row['finbert_score'] = score
+    
+    return data
+
 def getDataSentiment(data):
-    sentiment_model = flair.models.TextClassifier.load('en-sentiment')  # Load model
-    return ''
+    data = flair_senitment(data) 
+    data = vader_senitment(data)
+    data = finbert_senitment(data)
+    return data
 
 
 if __name__ == '__main__':
