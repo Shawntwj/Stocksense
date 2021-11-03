@@ -7,7 +7,8 @@
     # happytransformer
 
 import time
-import datetime
+import datetime as datetime
+from datetime import datetime as dt
 from flask import Flask
 from flask import jsonify
 import pandas as pd
@@ -63,8 +64,8 @@ def first_check(symbol):
 def getStocktwits(symbol, start_date, end_date):
     if (first_check(symbol)):
         data = []
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        start_date = dt.strptime(start_date, "%Y-%m-%d")
+        end_date = dt.strptime(end_date, "%Y-%m-%d")
         j = 0   # page number
 
         while end_date >= start_date:
@@ -90,7 +91,7 @@ def getStocktwits(symbol, start_date, end_date):
 
                     date_created_data = timelist[0]
 
-                    start_date = datetime.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = dt.strptime(date_created_data, "%Y-%m-%d")
 
                     time_created_data = timelist[1][:-1]
 
@@ -156,8 +157,8 @@ def getArticleSummary(parsed_news):
 def getGoogleNewsLinks(symbol, start_date, end_date):
     parsed_news = []
 
-    start_date = datetime.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
 
     googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
     googlenews.search(symbol)
@@ -216,10 +217,10 @@ def getTwitter(symbol, start_date, end_date):
 def reddit_sentiment_comment(search, start, end, subreddit):
     api = PushshiftAPI()
 
-    s = datetime.datetime.strptime(start, '%d/%m/%Y')
-    e = datetime.datetime.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    s = dt.strptime(start, '%d/%m/%Y')
+    e = dt.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(dt.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(dt.strptime(end, "%d/%m/%Y").timetuple())
     comments = []
 
     S = api.search_comments(subreddit=subreddit, after=s, before=e)  # Pull posts within date range
@@ -233,7 +234,7 @@ def reddit_sentiment_comment(search, start, end, subreddit):
                     'comment_id':comment.id,
                     'subreddit':comment.subreddit,
                     'parent_id':comment.parent_id,
-                    'created':datetime.datetime.fromtimestamp(comment.created)
+                    'created':dt.fromtimestamp(comment.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
@@ -242,10 +243,10 @@ def reddit_sentiment_comment(search, start, end, subreddit):
 
 def reddit_sentiment_post(search, start, end, subreddit):
     api = PushshiftAPI()
-    s = datetime.datetime.strptime(start, '%d/%m/%Y')
-    e = datetime.datetime.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    s = dt.strptime(start, '%d/%m/%Y')
+    e = dt.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(dt.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(dt.strptime(end, "%d/%m/%Y").timetuple())
     posts = []
 
     S = api.search_submissions(subreddit=subreddit, after=s, before=e) # Pull posts within date range
@@ -262,7 +263,7 @@ def reddit_sentiment_post(search, start, end, subreddit):
                     'url':post.url,
                     'num_comments':post.num_comments,
                     'content':post.selftext,
-                    'created':datetime.datetime.fromtimestamp(post.created)
+                    'created':dt.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
