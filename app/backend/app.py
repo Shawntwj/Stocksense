@@ -58,44 +58,6 @@ from happytransformer import HappyTextClassification
 
 app = Flask(__name__)
 
-
-# def vader(jsonthing):
-#     sid_obj = SentimentIntensityAnalyzer()
-#     for json in jsonthing["data"]:
-#         result = sid_obj.polarity_scores(json["content"])
-#         score = result["compound"]
-#         if vader_compund_score > 0:
-#             sentiment = "Positive"
-#         elif vader_compund_score < 0:
-#             sentiment = "Negative"
-#         else:
-#             sentiment = "Neutral"
-#         json["vader_score"] = score
-#         json["vader_sentiment"] = sentiment
-#     return jsonthing
-
-# def finbert(jsonthing):
-#     happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)
-#     for json in jsonthing["data"]:  
-#         result = happy_tc.classify_text(json["content"])
-#         sentiment = result.label
-#         score = result.score
-#         json['finbert_sentiment'] = sentiment
-#         json['finbert_score'] = score
-#     return jsonthing
-
-# def flair(jsonthing):
-
-#     flair_sentiment = TextClassifier.load('en-sentiment')
-#     for json in jsonthing["data"]: 
-#         s = Sentence(json["content"])
-#         flair_sentiment.predict(s) 
-#         sentiment = str(s.labels[0]).split()[0]
-#         score = str(s.labels[0]).split()[1][1:-1]
-#         json['flair_sentiment'] = sentiment
-#         json['flair_score'] = score
-#     return jsonthing
-    
 @app.route('/')
 def healthCheck():
     return 200
