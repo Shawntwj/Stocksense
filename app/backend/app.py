@@ -60,15 +60,16 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getStocktwits(symbol, start_date, end_date):
+@app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/')
+def getStocktwits(symbol, start_date):
     if (first_check(symbol)):
         data = []
         start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = (start_date - datetime.timedelta(days=1))
+    
         j = 0   # page number
 
-        while end_date >= start_date:
+        while start_date > end_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
 
             if j > 0:
@@ -127,6 +128,10 @@ def getStocktwits(symbol, start_date, end_date):
 
 # News scraper - NOT TESTED YET!!!!
 def getArticleSummary(parsed_news):
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+    config = Config()
+    config.browser_user_agent = user_agent
+
     data=[]
     for ind in parsed_news:
         dicti={}
@@ -146,19 +151,23 @@ def getArticleSummary(parsed_news):
             else:
                 dicti['date']=article.publish_date
                 date = article.publish_date
+            
+            print(dicti)
             data.append(dicti)
         except:
             pass
 
+    print(data)
     return data
 
-def getGoogleNewsLinks(symbol, start_date, end_date):
+def getGoogleNewsLinks(symbol, start_date):
     parsed_news = []
 
-    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').strftime('%m/%d/%Y')
-    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').strftime('%m/%d/%Y')
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+    start_date = start_date.strftime('%m/%d/%Y')
 
-    googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
+    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
     googlenews.search(symbol)
 
     for i in range(2, 20):
@@ -172,13 +181,9 @@ def getGoogleNewsLinks(symbol, start_date, end_date):
 
     return parsed_news
 
-@app.route('/scraper/news/<string:symbol>/<string:start_date>/<string:end_date>/')
-def getNews(symbol, start_date, end_date):
-    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
-    config = Config()
-    config.browser_user_agent = user_agent
-
-    parsed_news = getGoogleNewsLinks(symbol, start_date, end_date)
+@app.route('/scraper/news/<string:symbol>/<string:start_date>/')
+def getNews(symbol, start_date):
+    parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news)
     return getResponse(data)
 
