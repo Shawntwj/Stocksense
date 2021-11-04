@@ -22,10 +22,59 @@ import snscrape.modules.twitter as sntwitter
 
 # libraries for Reddit
 
+# packages: flair
+import flair
+from flair.models import TextClassifier
+from flair.data import Sentence
+
+# packages: vader
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+# packages: finbert
+# from finbert_embedding.embedding import FinbertEmbedding
+from happytransformer import HappyTextClassification 
+
 
 app = Flask(__name__)
 
 
+def vader(jsonthing):
+    sid_obj = SentimentIntensityAnalyzer()
+    for json in jsonthing["data"]:
+        result = sid_obj.polarity_scores(json["content"])
+        score = result["compound"]
+        if vader_compund_score > 0:
+            sentiment = "Positive"
+        elif vader_compund_score < 0:
+            sentiment = "Negative"
+        else:
+            sentiment = "Neutral"
+        json["vader_score"] = score
+        json["vader_sentiment"] = sentiment
+    return jsonthing
+
+def finbert(jsonthing):
+    happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)
+    for json in jsonthing["data"]:  
+        result = happy_tc.classify_text(json["content"])
+        sentiment = result.label
+        score = result.score
+        json['finbert_sentiment'] = sentiment
+        json['finbert_score'] = score
+    return jsonthing
+
+def flair(jsonthing):
+
+    flair_sentiment = TextClassifier.load('en-sentiment')
+    for json in jsonthing["data"]: 
+        s = Sentence(json["content"])
+        flair_sentiment.predict(s) 
+        sentiment = str(s.labels[0]).split()[0]
+        score = str(s.labels[0]).split()[1][1:-1]
+        json['flair_sentiment'] = sentiment
+        json['flair_score'] = score
+    return jsonthing
+    
 @app.route('/')
 def healthCheck():
     return 200
@@ -109,7 +158,9 @@ def getStocktwits(symbol):
             print(j,"page done")
             j += 1
 
-        return jsonify(scraped_data)
+        # test = vader(scraped_data)
+        test = flair(scraped_data)
+        return  test
 
 # News scraper
 @app.route('/scraper/news/<string:symbol>/')
@@ -146,6 +197,14 @@ def getTwitter(symbol, start_date, end_date):
 def getReddit(symbol):
     pass
 
+# put trained models on flask 
+# sentiment analysis 
+
+# two options - dont train just put the model inside here 
+#  - train and put the model here and run the data through it 
+
+
 
 if __name__ == '__main__':
+    app.debug = True
     app.run(host='0.0.0.0', port=8000)
