@@ -43,20 +43,9 @@ import flair
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from happytransformer import HappyTextClassification
 
-# packages: flair
-import flair
-from flair.models import TextClassifier
-from flair.data import Sentence
-
-# packages: vader
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
-# packages: finbert
-# from finbert_embedding.embedding import FinbertEmbedding
-from happytransformer import HappyTextClassification 
-
 
 app = Flask(__name__)
+
 
 @app.route('/')
 def healthCheck():
