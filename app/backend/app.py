@@ -71,16 +71,17 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/')
+@app.route('/api/stocktwits/<string:symbol>/<string:start_date>/')
 def getStocktwits(symbol, start_date):
     if (first_check(symbol)):
         data = []
+
         start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = (start_date - datetime.timedelta(days=1))
-    
+        end_date = start_date
+
         j = 0   # page number
 
-        while start_date > end_date:
+        while start_date >= end_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
 
             if j > 0:
@@ -105,41 +106,43 @@ def getStocktwits(symbol, start_date):
 
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
-                    time_created_data = timelist[1][:-1]
+                    if (start_date == end_date):
+                        time_created_data = timelist[1][:-1]
 
-                    username_data = main_body[i]["user"]["username"]
-                    name_data = main_body[i]["user"]["name"]
-                    join_date_data = main_body[i]["user"]["join_date"]
-                    official_data = main_body[i]["user"]["official"]
-                    followers_data = main_body[i]["user"]["followers"]
-                    source_data =  main_body[i]["source"]["title"]
-                    try:
-                        likes_data =  main_body[i]["likes"]["total"]
-                    except:
-                        likes_data = 0
+                        username_data = main_body[i]["user"]["username"]
+                        name_data = main_body[i]["user"]["name"]
+                        join_date_data = main_body[i]["user"]["join_date"]
+                        official_data = main_body[i]["user"]["official"]
+                        followers_data = main_body[i]["user"]["followers"]
+                        source_data =  main_body[i]["source"]["title"]
+                        try:
+                            likes_data =  main_body[i]["likes"]["total"]
+                        except:
+                            likes_data = 0
 
-                    postid = data_dict["cursor"]["max"]
-                    postid = "&max=" + str(postid)
+                        postid = data_dict["cursor"]["max"]
+                        postid = "&max=" + str(postid)
 
-                    data.append({
-                        "person_id": person_id_data,
-                        "content": content_data,
-                        "date_created": date_created_data,
-                        "time_created": time_created_data,
-                        "username": username_data,
-                        "name": name_data,
-                        "join_date": join_date_data,
-                        "official": official_data,
-                        "followers": followers_data,
-                        "source": source_data,
-                        "likes": likes_data
-                    })
+                        data.append({
+                            "person_id": person_id_data,
+                            "content": content_data,
+                            "date_created": date_created_data,
+                            "time_created": time_created_data,
+                            "username": username_data,
+                            "name": name_data,
+                            "join_date": join_date_data,
+                            "official": official_data,
+                            "followers": followers_data,
+                            "source": source_data,
+                            "likes": likes_data
+                        })
+
             j += 1
 
         return getResponse(data)
 
 # News scraper - NOT TESTED YET!!!!
-def getArticleSummary(parsed_news):
+def getArticleSummary(parsed_news, start_date):
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
     config = Config()
     config.browser_user_agent = user_agent
@@ -153,33 +156,30 @@ def getArticleSummary(parsed_news):
             article.parse()
             article.nlp()
 
-            dicti['ticker']=ind[0]
             dicti['title']=article.title
             dicti['content']=article.text
             dicti['summary']=article.summary
             dicti['link']=ind[1]
             if article.publish_date == None:
-                dicti['date']=date
+                dicti['date']=start_date
             else:
                 dicti['date']=article.publish_date
                 date = article.publish_date
-            
-            print(dicti)
+
             data.append(dicti)
         except:
             pass
 
-    print(data)
     return data
 
 def getGoogleNewsLinks(symbol, start_date):
     parsed_news = []
 
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+    end_date = (start_date + datetime.timedelta(days=1)).strftime('%m/%d/%Y')
     start_date = start_date.strftime('%m/%d/%Y')
 
-    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
+    googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
     googlenews.search(symbol)
 
     for i in range(2, 20):
@@ -193,14 +193,14 @@ def getGoogleNewsLinks(symbol, start_date):
 
     return parsed_news
 
-@app.route('/scraper/news/<string:symbol>/<string:start_date>/')
+@app.route('/api/news/<string:symbol>/<string:start_date>/')
 def getNews(symbol, start_date):
     parsed_news = getGoogleNewsLinks(symbol, start_date)
-    data = getArticleSummary(parsed_news)
+    data = getArticleSummary(parsed_news, start_date)
     return getResponse(data)
 
 # Twitter scraper
-@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/')
+@app.route('/api/twitter/<string:symbol>/<string:start_date>/')
 def getTwitter(symbol, start_date):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
@@ -293,11 +293,11 @@ def getReddit(redditType, symbol, start_date):
         data = reddit_sentiment_post(symbol, start, end, sub)
     return getResponse(data)
 
-@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/')
+@app.route('/api/reddit/comment/<string:symbol>/<string:start_date>/')
 def getRedditComments(symbol, start_date):
     return getReddit("comment", symbol, start_date)
 
-@app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/')
+@app.route('/api/reddit/post/<string:symbol>/<string:start_date>/')
 def getRedditPosts(symbol, start_date):
     return getReddit("post", symbol, start_date)
 
@@ -377,7 +377,6 @@ def getDataSentiment(data):
 # Helper
 def getResponse(data):
     cleanedData = getCleanedContent(data)
-    sentimentData = cleanedData
     sentimentData = getDataSentiment(cleanedData)
     return jsonify({"data": sentimentData})
 
