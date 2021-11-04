@@ -1,26 +1,47 @@
-#remember to pip install:
-# flask
-# git+https://github.com/JustAnotherArchivist/snscrape.git
+# remember to pip install:
+    # flask
+    # git+https://github.com/JustAnotherArchivist/snscrape.git
+    # GoogleNews
+    # newspaper3k
+    # flair
+    # happytransformer
+    # psaw
 
+import time
+import datetime
 from flask import Flask
 from flask import jsonify
 import pandas as pd
-import ast
 
 # libraries for Stocktwits
 import requests
 import json
-import time
 import os
-import datetime as datetime
-from datetime import datetime as dt
 
 # libraries for News
+from GoogleNews import GoogleNews
+from newspaper import Article
+from newspaper import Config
 
 # libraries for Twitter
 import snscrape.modules.twitter as sntwitter
 
 # libraries for Reddit
+from psaw import PushshiftAPI
+
+# libraries for clean
+import re
+import nltk
+from nltk import word_tokenize
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+import numpy as np
+
+# libraries for sentiment analysis
+import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from happytransformer import HappyTextClassification
 
 # packages: flair
 import flair
@@ -38,42 +59,42 @@ from happytransformer import HappyTextClassification
 app = Flask(__name__)
 
 
-def vader(jsonthing):
-    sid_obj = SentimentIntensityAnalyzer()
-    for json in jsonthing["data"]:
-        result = sid_obj.polarity_scores(json["content"])
-        score = result["compound"]
-        if vader_compund_score > 0:
-            sentiment = "Positive"
-        elif vader_compund_score < 0:
-            sentiment = "Negative"
-        else:
-            sentiment = "Neutral"
-        json["vader_score"] = score
-        json["vader_sentiment"] = sentiment
-    return jsonthing
+# def vader(jsonthing):
+#     sid_obj = SentimentIntensityAnalyzer()
+#     for json in jsonthing["data"]:
+#         result = sid_obj.polarity_scores(json["content"])
+#         score = result["compound"]
+#         if vader_compund_score > 0:
+#             sentiment = "Positive"
+#         elif vader_compund_score < 0:
+#             sentiment = "Negative"
+#         else:
+#             sentiment = "Neutral"
+#         json["vader_score"] = score
+#         json["vader_sentiment"] = sentiment
+#     return jsonthing
 
-def finbert(jsonthing):
-    happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)
-    for json in jsonthing["data"]:  
-        result = happy_tc.classify_text(json["content"])
-        sentiment = result.label
-        score = result.score
-        json['finbert_sentiment'] = sentiment
-        json['finbert_score'] = score
-    return jsonthing
+# def finbert(jsonthing):
+#     happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)
+#     for json in jsonthing["data"]:  
+#         result = happy_tc.classify_text(json["content"])
+#         sentiment = result.label
+#         score = result.score
+#         json['finbert_sentiment'] = sentiment
+#         json['finbert_score'] = score
+#     return jsonthing
 
-def flair(jsonthing):
+# def flair(jsonthing):
 
-    flair_sentiment = TextClassifier.load('en-sentiment')
-    for json in jsonthing["data"]: 
-        s = Sentence(json["content"])
-        flair_sentiment.predict(s) 
-        sentiment = str(s.labels[0]).split()[0]
-        score = str(s.labels[0]).split()[1][1:-1]
-        json['flair_sentiment'] = sentiment
-        json['flair_score'] = score
-    return jsonthing
+#     flair_sentiment = TextClassifier.load('en-sentiment')
+#     for json in jsonthing["data"]: 
+#         s = Sentence(json["content"])
+#         flair_sentiment.predict(s) 
+#         sentiment = str(s.labels[0]).split()[0]
+#         score = str(s.labels[0]).split()[1][1:-1]
+#         json['flair_sentiment'] = sentiment
+#         json['flair_score'] = score
+#     return jsonthing
     
 @app.route('/')
 def healthCheck():
@@ -88,18 +109,16 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/scraper/stocktwits/<string:symbol>/')
-def getStocktwits(symbol):
+@app.route('/scraper/stocktwits/<string:symbol>/<string:start_date>/')
+def getStocktwits(symbol, start_date):
     if (first_check(symbol)):
+        data = []
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = (start_date - datetime.timedelta(days=1))
+    
+        j = 0   # page number
 
-        scraped_data = { "data": [] }
-
-        post_date = dt.now()
-        previous = post_date - datetime.timedelta(days=1)
-
-        j = 0
-
-        while post_date > previous:
+        while start_date > end_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
 
             if j > 0:
@@ -121,9 +140,8 @@ def getStocktwits(symbol):
                     timelist = time.split("T")
 
                     date_created_data = timelist[0]
-                    print(date_created_data)
 
-                    post_date = dt.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     time_created_data = timelist[1][:-1]
 
@@ -141,7 +159,7 @@ def getStocktwits(symbol):
                     postid = data_dict["cursor"]["max"]
                     postid = "&max=" + str(postid)
 
-                    scraped_data["data"].append({
+                    data.append({
                         "person_id": person_id_data,
                         "content": content_data,
                         "date_created": date_created_data,
@@ -154,22 +172,74 @@ def getStocktwits(symbol):
                         "source": source_data,
                         "likes": likes_data
                     })
-
-            print(j,"page done")
             j += 1
 
-        # test = vader(scraped_data)
-        test = flair(scraped_data)
-        return  test
+        return getResponse(data)
 
-# News scraper
-@app.route('/scraper/news/<string:symbol>/')
-def getNews(symbol):
-    pass
+# News scraper - NOT TESTED YET!!!!
+def getArticleSummary(parsed_news):
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+    config = Config()
+    config.browser_user_agent = user_agent
+
+    data=[]
+    for ind in parsed_news:
+        dicti={}
+        article = Article(ind[1],config=config)
+        try:
+            article.download()
+            article.parse()
+            article.nlp()
+
+            dicti['ticker']=ind[0]
+            dicti['title']=article.title
+            dicti['content']=article.text
+            dicti['summary']=article.summary
+            dicti['link']=ind[1]
+            if article.publish_date == None:
+                dicti['date']=date
+            else:
+                dicti['date']=article.publish_date
+                date = article.publish_date
+            
+            print(dicti)
+            data.append(dicti)
+        except:
+            pass
+
+    print(data)
+    return data
+
+def getGoogleNewsLinks(symbol, start_date):
+    parsed_news = []
+
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+    start_date = start_date.strftime('%m/%d/%Y')
+
+    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
+    googlenews.search(symbol)
+
+    for i in range(2, 20):
+        googlenews.getpage(i)
+        result=googlenews.result()
+        df=pd.DataFrame(result)
+
+    for ind in df.index:
+        link = df['link'][ind]
+        parsed_news.append([symbol, link])
+
+    return parsed_news
+
+@app.route('/scraper/news/<string:symbol>/<string:start_date>/')
+def getNews(symbol, start_date):
+    parsed_news = getGoogleNewsLinks(symbol, start_date)
+    data = getArticleSummary(parsed_news)
+    return getResponse(data)
 
 # Twitter scraper
-@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/<string:end_date>')
-def getTwitter(symbol, start_date, end_date):
+@app.route('/scraper/twitter/<string:symbol>/<string:start_date>/')
+def getTwitter(symbol, start_date):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
     - assumes date format to be YYYY-MM-DD
@@ -177,32 +247,177 @@ def getTwitter(symbol, start_date, end_date):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
+    end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
-        print(tweet.content)
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
             data.append({
                 "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
-                'followers': tweet.user.followersCount,
-                'comments': tweet.replyCount,
-                'shares': tweet.retweetCount,
-                'likes': tweet.likeCount
+                "followers": tweet.user.followersCount,
+                "comments": tweet.replyCount,
+                "shares": tweet.retweetCount,
+                "likes": tweet.likeCount
             })
-    return jsonify({"data": data})
+    return getResponse(data)
 
 # Reddit scraper
-@app.route('/scraper/reddit/<string:symbol>/')
-def getReddit(symbol):
-    pass
 
-# put trained models on flask 
-# sentiment analysis 
+def reddit_sentiment_comment(search, start, end, subreddit):
+    api = PushshiftAPI()
 
-# two options - dont train just put the model inside here 
-#  - train and put the model here and run the data through it 
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    comments = []
 
+    S = api.search_comments(subreddit=subreddit, after=s, before=e)  # Pull posts within date range
+    for comment in S:  # Looping through each post
+        try: # Try/except to catch any erroneous post pulls
+            if comment.body != '[removed]' and comment.body != '[deleted]' and search[0] in comment.body or search[1] in comment.body or search[2] in comment.body or search[3] in comment.body or search[4] in comment.body: # Remove the deleted posts
+                comments.append({
+                    'content':comment.body,
+                    'username':comment.author_fullname,
+                    'score':comment.score,
+                    'comment_id':comment.id,
+                    'subreddit':comment.subreddit,
+                    'parent_id':comment.parent_id,
+                    'created':datetime.datetime.fromtimestamp(comment.created)
+                })  # Retrieve post data and append to dataframe
+        except:
+            continue # Continue loop if error is found
+
+    return comments
+
+def reddit_sentiment_post(search, start, end, subreddit):
+    api = PushshiftAPI()
+    s = datetime.datetime.strptime(start, '%d/%m/%Y')
+    e = datetime.datetime.strptime(end, '%d/%m/%Y')
+    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
+    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
+    posts = []
+
+    S = api.search_submissions(subreddit=subreddit, after=s, before=e) # Pull posts within date range
+
+    for post in S:  # Looping through each post
+        try: # Try/except to catch any erroneous post pulls
+            if post.title != '[removed]' and post.title != '[deleted]'and search[0] in post.title or search[1] in post.title or search[2] in post.title or search[3] in post.title or search[4] in post.title:
+                posts.append({
+                    'title':post.title,
+                    'score':post.score,
+                    'upvote_ratio':post.upvote_ratio,
+                    'id':post.id,
+                    'subreddit':post.subreddit,
+                    'url':post.url,
+                    'num_comments':post.num_comments,
+                    'content':post.selftext,
+                    'created':datetime.datetime.fromtimestamp(post.created)
+                })  # Retrieve post data and append to dataframe
+        except:
+            continue # Continue loop if error is found
+
+    return posts
+
+def getReddit(redditType, symbol, start_date):
+    """convert date format to %d/%m/%Y"""
+    start = "/".join(start_date.split("-")[::-1])
+    end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
+    sub = "stocks"
+    if redditType == "comment":
+        data = reddit_sentiment_comment(symbol, start, end, sub)
+    elif  redditType == "post":
+        data = reddit_sentiment_post(symbol, start, end, sub)
+    return getResponse(data)
+
+@app.route('/scraper/reddit/comment/<string:symbol>/<string:start_date>/')
+def getRedditComments(symbol, start_date):
+    return getReddit("comment", symbol, start_date)
+
+@app.route('/scraper/reddit/post/<string:symbol>/<string:start_date>/')
+def getRedditPosts(symbol, start_date):
+    return getReddit("post", symbol, start_date)
+
+# Clean
+def getCleanedContent(data):
+    cleaned_data = []
+    for item in data:
+        item["content"] = item["content"].lower()
+        item["content"] = remove_hashtag_mentions_urls(item["content"])
+        item["content"] = remove_emoji(item["content"])
+        item["content"] = tokenization(item["content"])
+        item["content"] = ' '.join(item["content"])
+        cleaned_data.append(item)
+    return cleaned_data
+
+def remove_hashtag_mentions_urls(text):
+    return re.sub(r"(?:\@|\#|https?\://)\S+", "", text)
+
+def remove_emoji(text):
+    emoji_pattern = re.compile("["
+    u"\U0001F600-\U0001F64F"  # emoticons
+    u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+    u"\U0001F680-\U0001F6FF"  # transport & map symbols
+    u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    u"\U00002702-\U000027B0"
+    u"\U000024C2-\U0001F251"
+    "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', text)
+
+def tokenization(text):
+    word_tokenizer = RegexpTokenizer(r'[-\'\w]+')
+    tokenized_text = word_tokenizer.tokenize(text)
+    return tokenized_text
+
+# Sentiment
+def flair_sentiment(data):
+    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
+    for row in data:
+        s = flair.data.Sentence(row["content"])
+        flair_sentiment.predict(s)
+        sentiment = str(s.labels[0]).split()[0]
+        score = str(s.labels[0]).split()[1][1:-1]
+
+        row["flair_sentiment"] = sentiment
+        row["flair_sentiment_score"] = score
+    return data
+
+def vader_sentiment(data):
+    sia = SentimentIntensityAnalyzer()  # Load model
+    for row in data:
+        vs = sia.polarity_scores(row["content"])
+        score = vs["compound"]
+        del vs['compound']
+        sentiment = max(vs, key=vs.get)
+
+        row['vader_sentiment'] = sentiment
+        row['vader_score'] = score
+    return data
+
+def finbert_sentiment(data):
+    happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)  # Load model
+    for row in data:
+        result = happy_tc.classify_text(row["content"])
+        sentiment = result.label
+        score = result.score
+
+        row['finbert_sentiment'] = sentiment
+        row['finbert_score'] = score
+    return data
+
+def getDataSentiment(data):
+    data = flair_sentiment(data)
+    data = vader_sentiment(data)
+    data = finbert_sentiment(data)
+    return data
+
+# Helper
+def getResponse(data):
+    cleanedData = getCleanedContent(data)
+    sentimentData = cleanedData
+    sentimentData = getDataSentiment(cleanedData)
+    return jsonify({"data": sentimentData})
 
 
 if __name__ == '__main__':

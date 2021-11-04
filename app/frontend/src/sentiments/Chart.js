@@ -67,7 +67,7 @@ export default function Chart() {
     return (
         <React.Fragment>
 
-            <Grid container spacing={3}>
+            {/* <Grid container spacing={3}>
                 <Grid item>
                     <Typography variant="body1" style={{ paddingLeft: 10 }}> View Daterange:</Typography>
                 </Grid>
@@ -77,7 +77,7 @@ export default function Chart() {
                         value={value} //default keep to 7 days or lesser
                     />
                 </Grid>
-            </Grid>
+            </Grid> */}
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
                     width={500}
