@@ -1,5 +1,5 @@
-Unnamed: 0,Unnamed: 0.1,Username,Tweet,Datetime,Number of Followers,Number of Comments,Number of Retweets,Number of Likes,cleaned Tweet,flair_sentiment,flair_sentiment_score,vader_sentiment,vader_score,finbert_sentiment,finbert_score
-0,0,cadeinvests,"Vanguard funds with the highest annual returns the last 10 years.
+Username,Tweet,Datetime,Number of Followers,Number of Comments,Number of Retweets,Number of Likes,cleaned Tweet,flair_sentiment,flair_sentiment_score,vader_sentiment,vader_score,finbert_sentiment,finbert_score,ticker
+cadeinvests,"Vanguard funds with the highest annual returns the last 10 years.
 
 1. $VGT Information Tech: 20%
 2. $VCR Consumer Disc: 18%
@@ -7,45 +7,45 @@ Unnamed: 0,Unnamed: 0.1,Username,Tweet,Datetime,Number of Followers,Number of Co
 4. $VONG Russell 1000 Growth: 16%
 5. $VUG S&amp;P 500 Growth: 16%
 
-Leaders of the pack.",2021-07-01 12:43:02+00:00,9943,11,33,243,vanguard fund high annual return last year vgt information tech vcr consumer disc mgk large cap growth vong growth vug amp p growth leader pack,POSITIVE,0.9927,neu,0.7783,positive,0.8732982873916626
-2,2,CringleKitten,"(Part 3) What does that mean? IMO - It could be an excellent corporate move as they probably know where the money is going.
+Leaders of the pack.",2021-07-01 12:43:02+00:00,9943,11,33,243,vanguard fund high annual return last year vgt information tech vcr consumer disc mgk large cap growth vong growth vug amp p growth leader pack,POSITIVE,0.9927,neu,0.7783,positive,0.873298287,RUI
+CringleKitten,"(Part 3) What does that mean? IMO - It could be an excellent corporate move as they probably know where the money is going.
 
-With the Russell 1000, it's going to print for them.",2021-06-29 22:22:02+00:00,30658,5,19,215,part mean imo could excellent corporate move probably know money go go print,NEGATIVE,0.8751,neu,0.5719,neutral,0.8859965205192566
-3,3,CringleKitten,"(Part 1) Food for thought
+With the Russell 1000, it's going to print for them.",2021-06-29 22:22:02+00:00,30658,5,19,215,part mean imo could excellent corporate move probably know money go go print,NEGATIVE,0.8751,neu,0.5719,neutral,0.885996521,RUI
+CringleKitten,"(Part 1) Food for thought
 
-Speculation in the market presenting Blackrock allegedly selling their Dow Jones ETFs so they could reinvest into Russell 1000.",2021-06-29 22:22:01+00:00,30658,2,44,288,part food think speculation market present blackrock allegedly sell dow jones etf could reinvest,NEGATIVE,0.9992,neu,0.0,neutral,0.9000305533409119
-4,4,heyitspixel69,"T+21 automatic lock-ins taking place? Failed to meet margin Call and short positions being closed automatically? Russell 1000 buy-ins? I don't know, but I like.",2021-06-28 13:49:41+00:00,42535,32,43,1212,automatic lock in take place fail meet margin call short position close automatically buy in know like,NEGATIVE,0.9845,neu,-0.25,neutral,0.916035532951355
-5,5,matt_kohrs,"Just posted two videos on the YT channel:
+Speculation in the market presenting Blackrock allegedly selling their Dow Jones ETFs so they could reinvest into Russell 1000.",2021-06-29 22:22:01+00:00,30658,2,44,288,part food think speculation market present blackrock allegedly sell dow jones etf could reinvest,NEGATIVE,0.9992,neu,0,neutral,0.900030553,RUI
+heyitspixel69,"T+21 automatic lock-ins taking place? Failed to meet margin Call and short positions being closed automatically? Russell 1000 buy-ins? I don't know, but I like.",2021-06-28 13:49:41+00:00,42535,32,43,1212,automatic lock in take place fail meet margin call short position close automatically buy in know like,NEGATIVE,0.9845,neu,-0.25,neutral,0.916035533,RUI
+matt_kohrs,"Just posted two videos on the YT channel:
 1) #AMC F9 update -- They crushed it
 2) #GME is now in the Russell 1000 -- Options Activity
 
-Excited to battle the Market with all of you Apes this week! To The Moon!!!",2021-06-27 22:03:19+00:00,150429,52,251,2283,post two video yt channel f9 update crush option activity excite battle market ape week moon,NEGATIVE,0.7388,neu,-0.0258,neutral,0.6863569021224976
-6,6,rockstar_stocks,"$gme been added to the Russell 1000. Great job everyone! :)
+Excited to battle the Market with all of you Apes this week! To The Moon!!!",2021-06-27 22:03:19+00:00,150429,52,251,2283,post two video yt channel f9 update crush option activity excite battle market ape week moon,NEGATIVE,0.7388,neu,-0.0258,neutral,0.686356902,RUI
+rockstar_stocks,"$gme been added to the Russell 1000. Great job everyone! :)
 
-$amc #amc #gme #GameStop https://t.co/o275AHPwpV",2021-06-26 02:05:01+00:00,40752,20,85,787,gme add great job everyone amc,POSITIVE,0.988,neu,0.6249,neutral,0.6347070336341858
-8,8,ThatNeighborBoy,"Congratulations to @ryancohen and @gamestopcorp for bringing the company from bankruptcy to the Russell 1000! This is a tremendous accomplishment and unprecedented in the world of finance. I hope you all have an amazing weekend!!!!!! 
-#GME $GME https://t.co/as3nlvXtnd",2021-06-25 20:28:29+00:00,2042,13,19,297,congratulation bring company bankruptcy tremendous accomplishment unprecedented world finance hope amaze weekend gme,POSITIVE,0.9901,pos,0.8834,neutral,0.741051435470581
-9,9,TOFIQFAZL,"$GME last minutes move from $200 to $210 due to Russell 1000 rebalancing nice pop .
-#wallstreetbets , #GME , #AMC",2021-06-25 19:59:42+00:00,32495,7,27,382,gme last minute move due rebalancing nice pop,POSITIVE,0.9828,neu,0.4215,neutral,0.8721840977668762
-10,10,DrTrillions,"TODAY, JUNE 25: RUSSELL INDEX REBALANCING DAY 
+$amc #amc #gme #GameStop https://t.co/o275AHPwpV",2021-06-26 02:05:01+00:00,40752,20,85,787,gme add great job everyone amc,POSITIVE,0.988,neu,0.6249,neutral,0.634707034,RUI
+ThatNeighborBoy,"Congratulations to @ryancohen and @gamestopcorp for bringing the company from bankruptcy to the Russell 1000! This is a tremendous accomplishment and unprecedented in the world of finance. I hope you all have an amazing weekend!!!!!! 
+#GME $GME https://t.co/as3nlvXtnd",2021-06-25 20:28:29+00:00,2042,13,19,297,congratulation bring company bankruptcy tremendous accomplishment unprecedented world finance hope amaze weekend gme,POSITIVE,0.9901,pos,0.8834,neutral,0.741051435,RUI
+TOFIQFAZL,"$GME last minutes move from $200 to $210 due to Russell 1000 rebalancing nice pop .
+#wallstreetbets , #GME , #AMC",2021-06-25 19:59:42+00:00,32495,7,27,382,gme last minute move due rebalancing nice pop,POSITIVE,0.9828,neu,0.4215,neutral,0.872184098,RUI
+DrTrillions,"TODAY, JUNE 25: RUSSELL INDEX REBALANCING DAY 
 
 ADJUSTMENTS WILL BE MADE TO RUSSELL INDICES AFTER MARKET CLOSE
 
 $GME TO MOVE INTO THE RUSSELL 1000
 
-#GME $AMC #MOASS #DIAMONDHANDS",2021-06-25 16:51:00+00:00,13384,8,31,247,today june rebalancing day adjustment make index market close gme move amc,NEGATIVE,0.905,neu,0.0,neutral,0.6617644429206848
-11,11,TOFIQFAZL,"$GME The Hedge Funds were selling Crypto for the last several days , so as to gather Funds to short $GME today as it is about to get into #Russell1000, so they get a price , #GME , #AMC",2021-06-25 15:30:17+00:00,32495,13,52,390,gme hedge fund sell crypto last several day gather fund short gme today get get price,NEGATIVE,0.9167,neu,0.0,neutral,0.9302852153778076
-12,12,TOFIQFAZL,"$GME entering #Russell1000 today ,expect a lot of volatility , as Funds / Institutions adjust / rebalance their portfolios , though expectations were that it might go up , but currently moving down , might reverse trend in power hour , this could affect $AMC too. #AMC",2021-06-25 14:49:47+00:00,32495,13,68,355,gme enter today expect lot volatility fund institution adjust rebalance portfolio though expectation might go currently move might reverse trend power hour could affect amc,NEGATIVE,0.9757,neu,0.0,negative,0.8589078187942505
-13,13,rockstar_stocks,"$AMC $GME video out!
+#GME $AMC #MOASS #DIAMONDHANDS",2021-06-25 16:51:00+00:00,13384,8,31,247,today june rebalancing day adjustment make index market close gme move amc,NEGATIVE,0.905,neu,0,neutral,0.661764443,RUI
+TOFIQFAZL,"$GME The Hedge Funds were selling Crypto for the last several days , so as to gather Funds to short $GME today as it is about to get into #Russell1000, so they get a price , #GME , #AMC",2021-06-25 15:30:17+00:00,32495,13,52,390,gme hedge fund sell crypto last several day gather fund short gme today get get price,NEGATIVE,0.9167,neu,0,neutral,0.930285215,RUI
+TOFIQFAZL,"$GME entering #Russell1000 today ,expect a lot of volatility , as Funds / Institutions adjust / rebalance their portfolios , though expectations were that it might go up , but currently moving down , might reverse trend in power hour , this could affect $AMC too. #AMC",2021-06-25 14:49:47+00:00,32495,13,68,355,gme enter today expect lot volatility fund institution adjust rebalance portfolio though expectation might go currently move might reverse trend power hour could affect amc,NEGATIVE,0.9757,neu,0,negative,0.858907819,RUI
+rockstar_stocks,"$AMC $GME video out!
 -#GME might be added to Russell 1000 tomorrow, what to expect if it does.
 -#AMC wants more dilution.
 -Community needs to learn how to talk to each other
 -Updates and news
 -Good vibes lol
 Hope you enjoy!
-https://t.co/xFehrh5M1I",2021-06-24 21:04:05+00:00,40752,24,29,209,amc gme video might add tomorrow expect want dilution community need learn talk update news good vibe lol hope enjoy,NEGATIVE,0.5777,neu,0.9022,neutral,0.8737148642539978
-14,14,TOFIQFAZL,"#AMC Russell rebalancing , #AMC is not being included in #Russell1000 on June 25th , but $GME made it , it is necessary that market cap should be over $7.3 billion to be included in #Russell1000 as of May 7 , $AMC was $4.3 Billion on May 7, so could not make it , #AMCSqueeze",2021-06-23 16:56:26+00:00,32495,12,46,395,rebalancing include june 25th gme make necessary market cap billion include may amc billion may could make,NEGATIVE,0.9974,neu,0.0,neutral,0.9239985942840576
-15,15,benwehrman,"✅ ATM complete, +$1B 💰
+https://t.co/xFehrh5M1I",2021-06-24 21:04:05+00:00,40752,24,29,209,amc gme video might add tomorrow expect want dilution community need learn talk update news good vibe lol hope enjoy,NEGATIVE,0.5777,neu,0.9022,neutral,0.873714864,RUI
+TOFIQFAZL,"#AMC Russell rebalancing , #AMC is not being included in #Russell1000 on June 25th , but $GME made it , it is necessary that market cap should be over $7.3 billion to be included in #Russell1000 as of May 7 , $AMC was $4.3 Billion on May 7, so could not make it , #AMCSqueeze",2021-06-23 16:56:26+00:00,32495,12,46,395,rebalancing include june 25th gme make necessary market cap billion include may amc billion may could make,NEGATIVE,0.9974,neu,0,neutral,0.923998594,RUI
+benwehrman,"✅ ATM complete, +$1B 💰
 ✅ NSCC-002 implemented
 ✅ T+21/T+35 death spiral
 ✅ Russell 1000
@@ -54,8 +54,8 @@ https://t.co/xFehrh5M1I",2021-06-24 21:04:05+00:00,40752,24,29,209,amc gme video
 
 Tell me a better stock on planet earth to own right now.
 
-#GME #ILikeTheStock #BuckleUp",2021-06-22 22:50:00+00:00,5170,23,61,690,atm complete 1b nscc implement death spiral exec lock w stock compensation elliot wave guy test drive porsches tell good stock planet earth right,NEGATIVE,0.9995,neu,-0.25,neutral,0.8928515315055847
-16,16,dog_shill,"BARK BARK BARK BARK BARK
+#GME #ILikeTheStock #BuckleUp",2021-06-22 22:50:00+00:00,5170,23,61,690,atm complete 1b nscc implement death spiral exec lock w stock compensation elliot wave guy test drive porsches tell good stock planet earth right,NEGATIVE,0.9995,neu,-0.25,neutral,0.892851532,RUI
+dog_shill,"BARK BARK BARK BARK BARK
 
 WEDNESDAY - 002 &amp; 801 IN EFFECT
 
@@ -63,60 +63,60 @@ THURSDAY - T-21
 
 FRIDAY - REVERSE REPO PAYBACK DUE &amp; $GME ADDED TO RUSSELL 1000
 
-MONDAY - HEDGIES R FUK?",2021-06-22 14:00:43+00:00,28527,42,138,1501,bark bark bark bark bark wednesday amp effect thursday friday reverse repo payback due amp gme add monday hedgies r fuk,NEGATIVE,0.981,neu,0.0,neutral,0.751091718673706
-17,17,trvsrdrgz,GameStop added to the Russell 1000! The same hedgefund shorted $AMC is the same short $GME. If GameStop short squeezes so does AMC!,2021-06-18 05:37:32+00:00,5685,19,73,735,gamestop add hedgefund short amc short gme gamestop short squeeze amc,NEGATIVE,0.9979,neu,0.0,neutral,0.7131035923957825
-19,19,andyleeck,"#AMC #GME likely going into Russell 1000, big boys don’t want to be caught looking bad,like they were stupid! Apes your thoughts pls?
+MONDAY - HEDGIES R FUK?",2021-06-22 14:00:43+00:00,28527,42,138,1501,bark bark bark bark bark wednesday amp effect thursday friday reverse repo payback due amp gme add monday hedgies r fuk,NEGATIVE,0.981,neu,0,neutral,0.751091719,RUI
+trvsrdrgz,GameStop added to the Russell 1000! The same hedgefund shorted $AMC is the same short $GME. If GameStop short squeezes so does AMC!,2021-06-18 05:37:32+00:00,5685,19,73,735,gamestop add hedgefund short amc short gme gamestop short squeeze amc,NEGATIVE,0.9979,neu,0,neutral,0.713103592,RUI
+andyleeck,"#AMC #GME likely going into Russell 1000, big boys don’t want to be caught looking bad,like they were stupid! Apes your thoughts pls?
 From:
 https://t.co/TWhy1fUcrp
 From:
 https://t.co/7etJuVkdmB
 From:
 https://t.co/WNrjAZQEE3
-Above are all from Sir @gmegang1 #ApeAndy loves you!",2021-06-15 04:49:05+00:00,11476,16,26,276,likely go big boy want catch look bad like stupid ape think pls sir love,NEGATIVE,0.937,pos,0.1027,neutral,0.8788647055625916
-21,21,andyleeck,"If Russell 2000 removes #GME due to (if)#GME moving to Russell 1000, does Russell 2000 have to sell its #GME shares? If so can Russell 2000 sell its #GME shares while the shares are still being lent out? #ApeAndy very dumb, smart apes pls advise! https://t.co/UX7ouyvFef https://t.co/M5x0YLsrIy",2021-06-12 03:39:41+00:00,11476,21,36,269,remove due move sell share sell share share still lend dumb smart ape pls advise,NEGATIVE,0.9385,pos,0.6486,neutral,0.9072781205177308
-22,22,assassin_wall,"$AMC $GME Apes…..big dates coming!
+Above are all from Sir @gmegang1 #ApeAndy loves you!",2021-06-15 04:49:05+00:00,11476,16,26,276,likely go big boy want catch look bad like stupid ape think pls sir love,NEGATIVE,0.937,pos,0.1027,neutral,0.878864706,RUI
+andyleeck,"If Russell 2000 removes #GME due to (if)#GME moving to Russell 1000, does Russell 2000 have to sell its #GME shares? If so can Russell 2000 sell its #GME shares while the shares are still being lent out? #ApeAndy very dumb, smart apes pls advise! https://t.co/UX7ouyvFef https://t.co/M5x0YLsrIy",2021-06-12 03:39:41+00:00,11476,21,36,269,remove due move sell share sell share share still lend dumb smart ape pls advise,NEGATIVE,0.9385,pos,0.6486,neutral,0.907278121,RUI
+assassin_wall,"$AMC $GME Apes…..big dates coming!
 June 18th Witching Day!
 June 25th T-21 T-35!
 June 25th Russell 1000 “Both”!
 June 30th Close 2nd Quarter!
-#AMC #AMCArmy #AMCSTRONG #AMCSqueeze",2021-06-11 12:44:48+00:00,375,12,103,292,amc gme ape big date come june 18th witch day june 25th june 25th june 30th close 2nd quarter,NEGATIVE,0.9848,neu,-0.3612,neutral,0.9007843136787416
-23,23,DrTrillions,"$GME possibly moving up into the Russell 1000 index? As of May 7, its market cap exceeds the necessary level to move out of the R2000.
+#AMC #AMCArmy #AMCSTRONG #AMCSqueeze",2021-06-11 12:44:48+00:00,375,12,103,292,amc gme ape big date come june 18th witch day june 25th june 25th june 30th close 2nd quarter,NEGATIVE,0.9848,neu,-0.3612,neutral,0.900784314,RUI
+DrTrillions,"$GME possibly moving up into the Russell 1000 index? As of May 7, its market cap exceeds the necessary level to move out of the R2000.
 
 If this happens, it may cause significant ETF reallocation which could force some shorted ETF's to cover!
 
 $AMC #MOASS
 
-https://t.co/LvDtmBmS0M",2021-06-11 05:36:35+00:00,13384,6,46,224,gme possibly move may market cap exceed necessary level move r2000 happen may cause significant etf reallocation could force short etf cover amc,NEGATIVE,0.9966,neu,0.2023,negative,0.9660956859588624
-24,24,benwehrman,".@dlauer on $GME entering the Russell 1000 on Jun 25:
+https://t.co/LvDtmBmS0M",2021-06-11 05:36:35+00:00,13384,6,46,224,gme possibly move may market cap exceed necessary level move r2000 happen may cause significant etf reallocation could force short etf cover amc,NEGATIVE,0.9966,neu,0.2023,negative,0.966095686,RUI
+benwehrman,".@dlauer on $GME entering the Russell 1000 on Jun 25:
 
 ""Russell rebalancing day is the the CRAZIEST day in the stock market.""
 
-Say no more. Ape calendar updated 🗓️✅ https://t.co/pGejfy7cZf",2021-06-11 01:02:18+00:00,5170,8,57,281,gme enter jun rebalancing day crazy day stock market say ape calendar update,NEGATIVE,0.9992,neu,-0.34,neutral,0.8858094215393066
-25,25,andyleeck,"Into Russell 1000 #GME may go! Then Russell 2000 index fund will have to close its #GME positions, shares lent out by index fund Russell 2000, &amp; ETFs that copy Russell 2000 has to be returned. But wait, aren’t those ETF shorted like 500%? What will happen? https://t.co/6PgJ4EDV8l",2021-06-09 06:28:51+00:00,11476,53,203,1337,may go fund close position share lend fund amp etf copy return wait etf short like happen,NEGATIVE,0.9952,neu,0.5719,neutral,0.8958945274353027
-26,26,rockstar_stocks,"Already seeing the tears over $amc going down, as if this wasn’t the perfect discount smh 🤦‍♂️
+Say no more. Ape calendar updated 🗓️✅ https://t.co/pGejfy7cZf",2021-06-11 01:02:18+00:00,5170,8,57,281,gme enter jun rebalancing day crazy day stock market say ape calendar update,NEGATIVE,0.9992,neu,-0.34,neutral,0.885809422,RUI
+andyleeck,"Into Russell 1000 #GME may go! Then Russell 2000 index fund will have to close its #GME positions, shares lent out by index fund Russell 2000, &amp; ETFs that copy Russell 2000 has to be returned. But wait, aren’t those ETF shorted like 500%? What will happen? https://t.co/6PgJ4EDV8l",2021-06-09 06:28:51+00:00,11476,53,203,1337,may go fund close position share lend fund amp etf copy return wait etf short like happen,NEGATIVE,0.9952,neu,0.5719,neutral,0.895894527,RUI
+rockstar_stocks,"Already seeing the tears over $amc going down, as if this wasn’t the perfect discount smh 🤦‍♂️
 
 Let me cheer you up: If #amc gets into the #russell1000 June 25, big money is going to have to start buying #amcstock.
 Plz share!
- #AMCSqueeze #AMCRussell1000 #AMCAPES #AMC100K #stocks https://t.co/58ToN8MISm",2021-06-08 15:23:04+00:00,40752,29,196,659,already see tear amc go perfect discount smh let cheer get june big money go start buy plz share,NEGATIVE,0.9776,neu,0.802,neutral,0.8910890221595764
-27,27,TOFIQFAZL,"$AMC inclusion in Russell 1000 , wil be good for the Stock , the news by itself will increase the price , as it will generate confidence for Investors and attract more Institutional money too .
-#amcshortsqueeze ,#AMCtothemoon",2021-06-07 14:03:05+00:00,32495,11,170,711,amc inclusion wil good stock news increase price generate confidence investor attract institutional money,POSITIVE,0.853,pos,0.875,positive,0.6653283834457397
-28,28,ApesMakingCash,#Russell1000 $AMC Great news!! More buying pressure soon 👀,2021-06-07 11:02:59+00:00,6242,4,45,238,amc great news buy pressure soon,POSITIVE,0.9143,pos,0.4404,neutral,0.729546308517456
-30,30,rockstar_stocks,"$AMC and $GME emergency video is up. GET READY TO GET F*CKING JACKED! Strong possibility #AMC and #GME get added to the prestigious Russell 1000!
+ #AMCSqueeze #AMCRussell1000 #AMCAPES #AMC100K #stocks https://t.co/58ToN8MISm",2021-06-08 15:23:04+00:00,40752,29,196,659,already see tear amc go perfect discount smh let cheer get june big money go start buy plz share,NEGATIVE,0.9776,neu,0.802,neutral,0.891089022,RUI
+TOFIQFAZL,"$AMC inclusion in Russell 1000 , wil be good for the Stock , the news by itself will increase the price , as it will generate confidence for Investors and attract more Institutional money too .
+#amcshortsqueeze ,#AMCtothemoon",2021-06-07 14:03:05+00:00,32495,11,170,711,amc inclusion wil good stock news increase price generate confidence investor attract institutional money,POSITIVE,0.853,pos,0.875,positive,0.665328383,RUI
+ApesMakingCash,#Russell1000 $AMC Great news!! More buying pressure soon 👀,2021-06-07 11:02:59+00:00,6242,4,45,238,amc great news buy pressure soon,POSITIVE,0.9143,pos,0.4404,neutral,0.729546309,RUI
+rockstar_stocks,"$AMC and $GME emergency video is up. GET READY TO GET F*CKING JACKED! Strong possibility #AMC and #GME get added to the prestigious Russell 1000!
 #AMC500k #AMCARMY #AMCSTRONG #NakedShorts #NakedShorting 
 
-https://t.co/c3GYNnhSa2",2021-06-06 21:36:33+00:00,40753,23,82,371,amc gme emergency video get ready get f cking jack strong possibility get add prestigious,POSITIVE,0.6347,neu,0.4939,neutral,0.8497444987297058
-31,31,TOFIQFAZL,"$AMC is being shorted by the Shorts thinking that its  going into bankruptcy and its value should be zero , now its at $40 plus , it is now a respectable high cap stock given and being acknowledged as such by inclusion in the ranks of Russell1000 large cap index .
-#AMC will fly",2021-06-06 21:05:23+00:00,32495,13,141,672,amc short short think go bankruptcy value zero plus respectable high cap stock give acknowledge inclusion rank russell1000 large cap fly,POSITIVE,0.6248,neu,0.6486,neutral,0.9126988649368286
-32,32,TOFIQFAZL,"$AMC latest news alert -- $AMC &amp; $GME are going to be shifted from the #Russell2000 small cap to the #Russell1000 large cap , probably by June 25 th , this is Huge News for $AMC . #AMCtothemoon , #AMCARMY",2021-06-06 20:54:46+00:00,32495,34,381,1437,amc late news alert amc amp gme go shift small cap large cap probably june th huge news amc,NEGATIVE,0.9608,neu,0.5423,neutral,0.7976471781730652
-33,33,Investingcom,"*GAMESTOP AND AMC TO BE ADDED TO RUSSELL 1000 IF MARKET CAP STAYS AT CURRENT LEVELS ON JUNE 25 - BBG
+https://t.co/c3GYNnhSa2",2021-06-06 21:36:33+00:00,40753,23,82,371,amc gme emergency video get ready get f cking jack strong possibility get add prestigious,POSITIVE,0.6347,neu,0.4939,neutral,0.849744499,RUI
+TOFIQFAZL,"$AMC is being shorted by the Shorts thinking that its  going into bankruptcy and its value should be zero , now its at $40 plus , it is now a respectable high cap stock given and being acknowledged as such by inclusion in the ranks of Russell1000 large cap index .
+#AMC will fly",2021-06-06 21:05:23+00:00,32495,13,141,672,amc short short think go bankruptcy value zero plus respectable high cap stock give acknowledge inclusion rank russell1000 large cap fly,POSITIVE,0.6248,neu,0.6486,neutral,0.912698865,RUI
+TOFIQFAZL,"$AMC latest news alert -- $AMC &amp; $GME are going to be shifted from the #Russell2000 small cap to the #Russell1000 large cap , probably by June 25 th , this is Huge News for $AMC . #AMCtothemoon , #AMCARMY",2021-06-06 20:54:46+00:00,32495,34,381,1437,amc late news alert amc amp gme go shift small cap large cap probably june th huge news amc,NEGATIVE,0.9608,neu,0.5423,neutral,0.797647178,RUI
+Investingcom,"*GAMESTOP AND AMC TO BE ADDED TO RUSSELL 1000 IF MARKET CAP STAYS AT CURRENT LEVELS ON JUNE 25 - BBG
 
-$GME $AMC https://t.co/DR65vRb5It",2021-06-06 17:55:24+00:00,593776,26,147,679,gamestop amc add market cap stay current level june bbg gme amc,NEGATIVE,0.8008,neu,0.0,neutral,0.534875214099884
-34,34,Katniss_Amc,"#AMC &amp; #GME could soon be included in the Russell 1000 index. We told you hedge funds from the beginning, we’re not going anywhere. Should’ve listened when you had the chance. 😎💎🦍 #AMC #GME #AMCARMY #AMC500k #NakedShorts https://t.co/eAkW2H5nmF",2021-06-06 17:41:55+00:00,22078,10,56,222,amp could soon include tell hedge fund begin go anywhere listen chance,NEGATIVE,0.9979,neu,0.25,neutral,0.9139848947525024
-36,36,UWMlending,We are happy to announce that $UWMC has been included in the preliminary list of IPO additions for the Russell 1000 and Russell 3000 indexes.,2021-03-02 14:55:06+00:00,6652,47,123,437,happy announce uwmc include preliminary list ipo addition index,POSITIVE,0.9842,neu,0.5719,neutral,0.9447715878486632
-37,37,charliebilello,"Best Performing Stocks in the Russell 1000 last year...
+$GME $AMC https://t.co/DR65vRb5It",2021-06-06 17:55:24+00:00,593776,26,147,679,gamestop amc add market cap stay current level june bbg gme amc,NEGATIVE,0.8008,neu,0,neutral,0.534875214,RUI
+Katniss_Amc,"#AMC &amp; #GME could soon be included in the Russell 1000 index. We told you hedge funds from the beginning, we’re not going anywhere. Should’ve listened when you had the chance. 😎💎🦍 #AMC #GME #AMCARMY #AMC500k #NakedShorts https://t.co/eAkW2H5nmF",2021-06-06 17:41:55+00:00,22078,10,56,222,amp could soon include tell hedge fund begin go anywhere listen chance,NEGATIVE,0.9979,neu,0.25,neutral,0.913984895,RUI
+UWMlending,We are happy to announce that $UWMC has been included in the preliminary list of IPO additions for the Russell 1000 and Russell 3000 indexes.,2021-03-02 14:55:06+00:00,6652,47,123,437,happy announce uwmc include preliminary list ipo addition index,POSITIVE,0.9842,neu,0.5719,neutral,0.944771588,RUI
+charliebilello,"Best Performing Stocks in the Russell 1000 last year...
 
 1) Tesla $TSLA: +743%
 2) Enphase Energy $ENPH: +572%
 3) Peloton $PTON: +434%
 4) Moderna $MRNA: +434%
-5) Zoom $ZM: +396% https://t.co/t6xeWpKL8Z",2021-01-02 17:25:12+00:00,309740,12,112,382,best perform stock last year tesla tsla enphase energy enph peloton pton moderna mrna zoom zm,POSITIVE,0.9989,neu,0.743,positive,0.5549280047416687
+5) Zoom $ZM: +396% https://t.co/t6xeWpKL8Z",2021-01-02 17:25:12+00:00,309740,12,112,382,best perform stock last year tesla tsla enphase energy enph peloton pton moderna mrna zoom zm,POSITIVE,0.9989,neu,0.743,positive,0.554928005,RUI
