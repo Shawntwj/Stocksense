@@ -40,9 +40,9 @@ from nltk.corpus import stopwords
 import numpy as np
 
 # libraries for sentiment analysis
-import flair
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from happytransformer import HappyTextClassification
+# import flair
+# from nltk.sentiment.vader import SentimentIntensityAnalyzer
+# from happytransformer import HappyTextClassification
 
 
 app = Flask(__name__)
@@ -370,7 +370,8 @@ def getDataSentiment(data):
 # Helper
 def getResponse(data):
     cleanedData = getCleanedContent(data)
-    sentimentData = getDataSentiment(cleanedData)
+    # sentimentData = getDataSentiment(cleanedData)
+    sentimentData = cleanedData
     return jsonify({"data": sentimentData})
 
 

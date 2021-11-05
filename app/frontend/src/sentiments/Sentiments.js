@@ -137,10 +137,17 @@ function DashboardContent() {
   const handleClick = async () => {
     //console.log(stock, model, value, ml, data);
     let date = moment(value).format("YYYY-MM-DD");
-    var url = `http://localhost:8000/api/${data}/${stock}/${date}`
-    
+    if(data=="reddit"){
+      var url = `http://localhost:8000/api/${data}/comment/${stock}/${date}`
+
+    }else{
+      var url = `http://localhost:8000/api/${data}/${stock}/${date}`
+ 
+    }
+       
     console.log(url)
     let response = await fetch(url)
+    //console.log(response)
     let res = await response.json()
     
     console.log(res)
