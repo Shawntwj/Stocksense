@@ -11,6 +11,7 @@ import time
 import datetime
 from flask import Flask
 from flask import jsonify
+from flask_cors import CORS
 import pandas as pd
 
 # libraries for Stocktwits
@@ -45,7 +46,7 @@ from happytransformer import HappyTextClassification
 
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/')
 def healthCheck():
@@ -199,6 +200,8 @@ def getTwitter(symbol, start_date):
     """
     data = []
     end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    print(f"{symbol} since:{start_date} until:{end_date}")
+    
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
@@ -211,6 +214,7 @@ def getTwitter(symbol, start_date):
                 "shares": tweet.retweetCount,
                 "likes": tweet.likeCount
             })
+ 
     return getResponse(data)
 
 # Reddit scraper

@@ -21,10 +21,10 @@ import ReactWordcloud from 'react-wordcloud';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
+import moment from 'moment';
 
 import Chart from './Chart';
 import Button from 'react-bootstrap/Button';
-
 
 function Copyright(props) {
   return (
@@ -134,9 +134,17 @@ function DashboardContent() {
     setStock(event.target.value);
   };
 
-  const handleClick = () => {
-    console.log(stock, model, value, ml, data);
-
+  const handleClick = async () => {
+    //console.log(stock, model, value, ml, data);
+    let date = moment(value).format("YYYY-MM-DD");
+    var url = `http://localhost:8000/api/${data}/${stock}/${date}`
+    
+    console.log(url)
+    let response = await fetch(url)
+    let res = await response.json()
+    
+    console.log(res)
+    return res
   }
   return (
     <ThemeProvider theme={mdTheme}>
@@ -227,6 +235,13 @@ function DashboardContent() {
                         <MenuItem key={"reddit"} value="reddit">
                           Reddit
                         </MenuItem>
+                        <MenuItem
+                          key={"stocktwits"} value="stocktwits">
+                          Stocktwits
+                        </MenuItem>
+                        <MenuItem key={"news"} value="news">
+                          News
+                        </MenuItem>
                       </TextField>
                     </Grid>
                     <Grid item xs={3} style={{ paddingLeft: 20 }}>
@@ -237,11 +252,29 @@ function DashboardContent() {
                         label="Stock"
                         style={{ minWidth: "100%" }}
                       >
-                        <MenuItem key={"AAPL"} value="AAPL">
+                        <MenuItem key={"AAPL"} value="aapl">
                           AAPL
                         </MenuItem>
-                        <MenuItem key={"RUS"} value="RUS">
-                          RUS
+                        <MenuItem key={"RUI"} value="rui">
+                          RUI
+                        </MenuItem>
+                        <MenuItem key={"AMZN"} value="amzn">
+                          AMZN
+                        </MenuItem>
+                        <MenuItem key={"ARKK"} value="arkk">
+                          ARKK
+                        </MenuItem>
+                        <MenuItem key={"ATER"} value="ater">
+                          ATER
+                        </MenuItem>
+                        <MenuItem key={"GOOGL"} value="googl">
+                          GOOGL
+                        </MenuItem>
+                        <MenuItem key={"TSLA"} value="tsla">
+                          TSLA
+                        </MenuItem>
+                        <MenuItem key={"VXRT"} value="vxrt">
+                          VXRT
                         </MenuItem>
                       </TextField>
                     </Grid>
@@ -292,7 +325,7 @@ function DashboardContent() {
                         Generate
                       </Button> */}
                       <Button onClick={handleClick}
-                        style={{ backgroundColor: "#1976D2", padding: "16px 35px", color: "white", border: "none", borderRadius: 5, cursor: "pointer" , fontSize: 16}}
+                        style={{ backgroundColor: "#1976D2", padding: "16px 35px", color: "white", border: "none", borderRadius: 5, cursor: "pointer", fontSize: 16 }}
                       >
                         Generate
                       </Button>
