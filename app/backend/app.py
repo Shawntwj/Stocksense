@@ -6,6 +6,7 @@
     # flair
     # happytransformer
     # psaw
+    # flask_cors
 
 import time
 import datetime
@@ -40,9 +41,9 @@ from nltk.corpus import stopwords
 import numpy as np
 
 # libraries for sentiment analysis
-# import flair
-# from nltk.sentiment.vader import SentimentIntensityAnalyzer
-# from happytransformer import HappyTextClassification
+import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from happytransformer import HappyTextClassification
 
 
 app = Flask(__name__)
@@ -61,8 +62,8 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/api/stocktwits/<string:symbol>/<string:start_date>/')
-def getStocktwits(symbol, start_date):
+@app.route('/api/stocktwits/<string:symbol>/<string:start_date>/<string:senti_type>/')
+def getStocktwits(symbol, start_date, senti_type):
     if (first_check(symbol)):
         data = []
 
@@ -70,6 +71,7 @@ def getStocktwits(symbol, start_date):
         end_date = start_date
 
         j = 0   # page number
+        postid = ''
 
         while start_date >= end_date:
             url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=40"
@@ -129,9 +131,10 @@ def getStocktwits(symbol, start_date):
 
             j += 1
 
-        return getResponse(data)
+        print(data)
+        return getResponse(data, senti_type)
 
-# News scraper - NOT TESTED YET!!!!
+# News scraper
 def getArticleSummary(parsed_news, start_date):
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
     config = Config()
@@ -154,7 +157,6 @@ def getArticleSummary(parsed_news, start_date):
                 dicti['date']=start_date
             else:
                 dicti['date']=article.publish_date
-                date = article.publish_date
 
             data.append(dicti)
         except:
@@ -183,15 +185,15 @@ def getGoogleNewsLinks(symbol, start_date):
 
     return parsed_news
 
-@app.route('/api/news/<string:symbol>/<string:start_date>/')
-def getNews(symbol, start_date):
+@app.route('/api/news/<string:symbol>/<string:start_date>/<string:senti_type>/')
+def getNews(symbol, start_date, senti_type):
     parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news, start_date)
-    return getResponse(data)
+    return getResponse(data, senti_type)
 
 # Twitter scraper
-@app.route('/api/twitter/<string:symbol>/<string:start_date>/')
-def getTwitter(symbol, start_date):
+@app.route('/api/twitter/<string:symbol>/<string:start_date>/<string:senti_type>/')
+def getTwitter(symbol, start_date, senti_type):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
     - assumes date format to be YYYY-MM-DD
@@ -201,7 +203,7 @@ def getTwitter(symbol, start_date):
     data = []
     end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     print(f"{symbol} since:{start_date} until:{end_date}")
-    
+
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
@@ -214,8 +216,8 @@ def getTwitter(symbol, start_date):
                 "shares": tweet.retweetCount,
                 "likes": tweet.likeCount
             })
- 
-    return getResponse(data)
+
+    return getResponse(data, senti_type)
 
 # Reddit scraper
 
@@ -275,7 +277,7 @@ def reddit_sentiment_post(search, start, end, subreddit):
 
     return posts
 
-def getReddit(redditType, symbol, start_date):
+def getReddit(redditType, symbol, start_date, senti_type):
     """convert date format to %d/%m/%Y"""
     start = "/".join(start_date.split("-")[::-1])
     end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
@@ -284,15 +286,15 @@ def getReddit(redditType, symbol, start_date):
         data = reddit_sentiment_comment(symbol, start, end, sub)
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start, end, sub)
-    return getResponse(data)
+    return getResponse(data, senti_type)
 
-@app.route('/api/reddit/comment/<string:symbol>/<string:start_date>/')
-def getRedditComments(symbol, start_date):
-    return getReddit("comment", symbol, start_date)
+@app.route('/api/reddit/comment/<string:symbol>/<string:start_date>/<string:senti_type>/')
+def getRedditComments(symbol, start_date, senti_type):
+    return getReddit("comment", symbol, start_date, senti_type)
 
-@app.route('/api/reddit/post/<string:symbol>/<string:start_date>/')
-def getRedditPosts(symbol, start_date):
-    return getReddit("post", symbol, start_date)
+@app.route('/api/reddit/post/<string:symbol>/<string:start_date>/<string:senti_type>/')
+def getRedditPosts(symbol, start_date, senti_type):
+    return getReddit("post", symbol, start_date, senti_type)
 
 # Clean
 def getCleanedContent(data):
@@ -361,16 +363,19 @@ def finbert_sentiment(data):
         row['finbert_score'] = score
     return data
 
-def getDataSentiment(data):
-    data = flair_sentiment(data)
-    data = vader_sentiment(data)
-    data = finbert_sentiment(data)
+def getDataSentiment(data, senti_type):
+    if (senti_type == "flair"):
+        data = flair_sentiment(data)
+    elif (senti_type == "vader"):
+        data = vader_sentiment(data)
+    else:
+        data = finbert_sentiment(data)
     return data
 
 # Helper
-def getResponse(data):
+def getResponse(data, senti_type):
     cleanedData = getCleanedContent(data)
-    # sentimentData = getDataSentiment(cleanedData)
+    sentimentData = getDataSentiment(cleanedData, senti_type)
     sentimentData = cleanedData
     return jsonify({"data": sentimentData})
 
