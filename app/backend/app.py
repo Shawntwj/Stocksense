@@ -14,6 +14,7 @@ from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
 import pandas as pd
+import statistics
 
 # libraries for Stocktwits
 import requests
@@ -62,13 +63,18 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/api/stocktwits/<string:symbol>/<string:start_date>/<string:senti_type>/')
-def getStocktwits(symbol, start_date, senti_type):
+@app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
+def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
 
-        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = start_date
+        # end_date = datetime.datetime.today()
+
+        # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
+        start_date = datetime.datetime.now()
+        end_date = start_date - datetime.timedelta(days=1)
 
         j = 0   # page number
         postid = ''
@@ -83,7 +89,9 @@ def getStocktwits(symbol, start_date, senti_type):
             data_dict = req.json()
 
             if data_dict["response"]["status"] == 200:
+                
                 main_body = data_dict["messages"]
+                print(main_body)
                 for i in range(len(main_body)):
                     person_id_data = main_body[i]["id"]
                     content_data = main_body[i]["body"]
@@ -98,40 +106,41 @@ def getStocktwits(symbol, start_date, senti_type):
 
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
-                    if (start_date == end_date):
-                        time_created_data = timelist[1][:-1]
+                    # if (start_date == end_date):
+                        
+                    time_created_data = timelist[1][:-1]
 
-                        username_data = main_body[i]["user"]["username"]
-                        name_data = main_body[i]["user"]["name"]
-                        join_date_data = main_body[i]["user"]["join_date"]
-                        official_data = main_body[i]["user"]["official"]
-                        followers_data = main_body[i]["user"]["followers"]
-                        source_data =  main_body[i]["source"]["title"]
-                        try:
-                            likes_data =  main_body[i]["likes"]["total"]
-                        except:
-                            likes_data = 0
+                    username_data = main_body[i]["user"]["username"]
+                    name_data = main_body[i]["user"]["name"]
+                    join_date_data = main_body[i]["user"]["join_date"]
+                    official_data = main_body[i]["user"]["official"]
+                    followers_data = main_body[i]["user"]["followers"]
+                    source_data =  main_body[i]["source"]["title"]
+                    try:
+                        likes_data =  main_body[i]["likes"]["total"]
+                    except:
+                        likes_data = 0
 
-                        postid = data_dict["cursor"]["max"]
-                        postid = "&max=" + str(postid)
+                    postid = data_dict["cursor"]["max"]
+                    postid = "&max=" + str(postid)
 
-                        data.append({
-                            "person_id": person_id_data,
-                            "content": content_data,
-                            "date_created": date_created_data,
-                            "time_created": time_created_data,
-                            "username": username_data,
-                            "name": name_data,
-                            "join_date": join_date_data,
-                            "official": official_data,
-                            "followers": followers_data,
-                            "source": source_data,
-                            "likes": likes_data
-                        })
+                    data.append({
+                        "person_id": person_id_data,
+                        "content": content_data,
+                        "date_created": date_created_data,
+                        "time_created": time_created_data,
+                        "username": username_data,
+                        "name": name_data,
+                        "join_date": join_date_data,
+                        "official": official_data,
+                        "followers": followers_data,
+                        "source": source_data,
+                        "likes": likes_data
+                    })
 
             j += 1
 
-        print(data)
+        # print(data)
         return getResponse(data, senti_type)
 
 # News scraper
@@ -167,16 +176,16 @@ def getArticleSummary(parsed_news, start_date):
 def getGoogleNewsLinks(symbol, start_date):
     parsed_news = []
 
-    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    end_date = (start_date + datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
     start_date = start_date.strftime('%m/%d/%Y')
 
-    googlenews=GoogleNews(start = start_date, end = end_date) #month/day/year
+    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
     googlenews.search(symbol)
 
     for i in range(2, 20):
         googlenews.getpage(i)
         result=googlenews.result()
+        print(result)
         df=pd.DataFrame(result)
 
     for ind in df.index:
@@ -185,15 +194,16 @@ def getGoogleNewsLinks(symbol, start_date):
 
     return parsed_news
 
-@app.route('/api/news/<string:symbol>/<string:start_date>/<string:senti_type>/')
-def getNews(symbol, start_date, senti_type):
+@app.route('/api/news/<string:symbol>/<string:senti_type>/')
+def getNews(symbol, senti_type):
+    start_date = datetime.datetime.now()
     parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news, start_date)
     return getResponse(data, senti_type)
 
 # Twitter scraper
-@app.route('/api/twitter/<string:symbol>/<string:start_date>/<string:senti_type>/')
-def getTwitter(symbol, start_date, senti_type):
+@app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
+def getTwitter(symbol, senti_type):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
     - assumes date format to be YYYY-MM-DD
@@ -201,7 +211,9 @@ def getTwitter(symbol, start_date, senti_type):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
-    end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    end_date = datetime.datetime.today()
+    start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    end_date = end_date.strftime('%Y-%m-%d')
     print(f"{symbol} since:{start_date} until:{end_date}")
 
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
@@ -330,37 +342,43 @@ def tokenization(text):
 # Sentiment
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
+    if len(data) == 0:
+        return data
     for row in data:
         s = flair.data.Sentence(row["content"])
         flair_sentiment.predict(s)
         sentiment = str(s.labels[0]).split()[0]
         score = str(s.labels[0]).split()[1][1:-1]
 
-        row["flair_sentiment"] = sentiment
-        row["flair_sentiment_score"] = score
+        row["sentiment"] = sentiment
+        row["score"] = score
     return data
 
 def vader_sentiment(data):
     sia = SentimentIntensityAnalyzer()  # Load model
+    if len(data) == 0:
+        return data
     for row in data:
         vs = sia.polarity_scores(row["content"])
         score = vs["compound"]
         del vs['compound']
         sentiment = max(vs, key=vs.get)
 
-        row['vader_sentiment'] = sentiment
-        row['vader_score'] = score
+        row['sentiment'] = sentiment
+        row['score'] = score
     return data
 
 def finbert_sentiment(data):
     happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)  # Load model
+    if len(data) == 0:
+        return data
     for row in data:
-        result = happy_tc.classify_text(row["content"])
+        result = happy_tc.classify_text(row["content"][:512])
         sentiment = result.label
         score = result.score
 
-        row['finbert_sentiment'] = sentiment
-        row['finbert_score'] = score
+        row['sentiment'] = sentiment
+        row['score'] = score
     return data
 
 def getDataSentiment(data, senti_type):
@@ -377,7 +395,36 @@ def getResponse(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
     sentimentData = cleanedData
-    return jsonify({"data": sentimentData})
+    score = sentiment_score(sentimentData, senti_type)
+    return jsonify({"data": sentimentData, "score": score})
+
+# Average Sentiment 24 hours
+def sentiment_score(dct, senti_type):
+    if len(dct) == 0:
+        return 0
+    sentiment = []
+    score = []
+
+    for post in dct:
+
+        if senti_type == "vader":
+            score.append(float(post['score']))
+        else:
+            sentiment.append(post['sentiment'])
+            score.append(float(post['score']))
+    
+    if (senti_type == "vader"):
+        return statistics.mean(score)
+    else:
+        df = pd.DataFrame({'sentiment':sentiment, 'score':score})
+        
+        for index, row in df.iterrows():
+            if row['sentiment'].lower() == 'negative':
+                df.at[index,"score"] = 0 - row['score']
+            else:
+                df.at[index,"score"] = row['score']
+            
+        return df['score'].mean()
 
 
 if __name__ == '__main__':
