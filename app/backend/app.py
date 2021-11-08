@@ -56,9 +56,53 @@ from keras.layers import Dense, Dropout, LSTM
 app = Flask(__name__)
 CORS(app)
 
+
+
+@app.route("/api/<string:source>/<string:symbol>/<string:senti_type>/<string:ml_type>/")
+def mainFunction(source, symbol, senti_type, ml_type):
+    """assumes values correspond to the excel & all lowercase"""
+    # scrape, clean, sentiment analysis
+    if source == 'news':
+        response = getNews(symbol, senti_type)
+    elif source == 'stocktwits':
+        response = getStocktwits(symbol, senti_type)
+    elif source == 'twitter':
+        response = getTwitter(symbol, senti_type)
+    elif source == 'reddit:comment':
+        response = getRedditComments(symbol, senti_type)
+        source = 'reddit'
+    elif source == 'reddit:post':
+        response = getRedditPosts(symbol, senti_type)
+        source = 'reddit'
+    data = response["data"]
+    sentiment = response["score"]
+
+    # extract correlation score from exported excel
+    if source == 'twitter' and symbol == 'msft':
+        correlation = 0
+    else:
+        if senti_type == 'flair':
+            senti_key = 'Flair Sentiment'
+        else:
+            senti_key = senti_type.capitalize()
+        corr_df = pd.read_excel("sentiment_correlation.xlsx")
+        platform_corr_df = corr_df[corr_df['Platform']==source]
+        row_corr_df = platform_corr_df[platform_corr_df['Ticket']==symbol.upper()]
+        corr_series = row_corr_df[senti_key+' Score']
+        correlation = corr_series.values[0]
+
+    # ML models
+    todayPredict, ytdClose, MSE_error = predict_price(symbol, ml_type)
+
+    decision = decision_tree(sentiment, correlation, todayPredict, ytdClose)
+
+    return jsonify({"decision":decision, "error":MSE_error, "score": sentiment, "data":data})
+
 @app.route('/')
 def healthCheck():
     return 200
+
+
 
 # Stocktwits scraper
 def first_check(symbol):
@@ -69,7 +113,7 @@ def first_check(symbol):
         return True
     return False
 
-@app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
+# @app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
 def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
@@ -144,7 +188,7 @@ def getStocktwits(symbol, senti_type):
 
             j += 1
 
-        return getResponse(data, senti_type)
+        return getResult(data, senti_type)
 
 # News scraper
 def getArticleSummary(parsed_news, start_date):
@@ -196,15 +240,15 @@ def getGoogleNewsLinks(symbol, start_date):
 
     return parsed_news
 
-@app.route('/api/news/<string:symbol>/<string:senti_type>/')
+# @app.route('/api/news/<string:symbol>/<string:senti_type>/')
 def getNews(symbol, senti_type):
     start_date = datetime.datetime.now()
     parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news, start_date)
-    return getResponse(data, senti_type)
+    return getResult(data, senti_type)
 
 # Twitter scraper
-@app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
+# @app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
 def getTwitter(symbol, senti_type):
     """
     Using TwitterSearchScraper to scrape data and append tweets to list
@@ -230,7 +274,7 @@ def getTwitter(symbol, senti_type):
                 "likes": tweet.likeCount
             })
 
-    return getResponse(data, senti_type)
+    return getResult(data, senti_type)
 
 # Reddit scraper
 def reddit_sentiment_comment(search, start, end, subreddit):
@@ -301,13 +345,13 @@ def getReddit(redditType, symbol, senti_type):
         data = reddit_sentiment_comment(symbol, start_date, end_date, sub)
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start_date, end_date, sub)
-    return getResponse(data, senti_type)
+    return getResult(data, senti_type)
 
-@app.route('/api/reddit:comment/<string:symbol>/<string:senti_type>/')
+# @app.route('/api/reddit:comment/<string:symbol>/<string:senti_type>/')
 def getRedditComments(symbol, senti_type):
     return getReddit("comment", symbol, senti_type)
 
-@app.route('/api/reddit:post/<string:symbol>/<string:senti_type>/')
+# @app.route('/api/reddit:post/<string:symbol>/<string:senti_type>/')
 def getRedditPosts(symbol, senti_type):
     return getReddit("post", symbol, senti_type)
 
@@ -393,11 +437,11 @@ def getDataSentiment(data, senti_type):
         data = finbert_sentiment(data)
     return data
 
-def getResponse(data, senti_type):
+def getResult(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
     score = sentiment_score(sentimentData, senti_type)
-    return jsonify({"data": sentimentData, "score": score})
+    return {"data": sentimentData, "score": score}
 
 # Average Sentiment 24 hours
 def sentiment_score(dct, senti_type):
@@ -430,6 +474,7 @@ def sentiment_score(dct, senti_type):
 # ML models
 def autoArimaML(symbol, df):
     close = df['Close']
+
     # splitting the data
     train_ratio = 0.8
     train_size = int(df.shape[0] * train_ratio)
@@ -583,7 +628,6 @@ def lstm(symbol, df):
     return today_prediction[0], closing_price[-1][0], MSE_error
 
 def predict_price(symbol, ml_model):
-
     start_date = '2019-01-01'
 
     today = datetime.date.today()
@@ -602,11 +646,42 @@ def predict_price(symbol, ml_model):
     elif ml_model == 'LSTM':
         return lstm(symbol, panel_data)
 
-@app.route("/api/<string:source>/<string:symbol>/<string:senti_type>/<string:ml_type>/")
-def mainFunction(source, symbol, senti_type, ml_type):
-    todayPredict, ytdClose, MSE_error = predict_price(symbol, ml_type)
-    print(todayPredict, ytdClose, MSE_error)
-    return "hello"
+def decision_tree(sentiment, correlation, predicted_price, yesterday_price):
+    """
+    sentiment score for 24hrs
+    correlation score
+    predicted price for the day
+    yesterday's price
+    """
+    gate = 0
+    if predicted_price > yesterday_price:
+        gate += 1
+    else:
+        gate -= 1
+    if sentiment >= 0:
+        if correlation >= 0.2:
+            gate += 1
+        if correlation >= 0.4:
+            gate += 2
+        if correlation <= -0.2:
+            gate -= 1
+        if correlation <= -0.4:
+            gate -= 2
+    else:
+        if correlation <= -0.2:
+            gate += 1
+        if correlation <= -0.4:
+            gate += 2
+        if correlation >= 0.2:
+            gate -= 1
+        if correlation >= 0.4:
+            gate -= 2
+    if gate >= 2:
+        return "Buy"
+    elif gate <= -2:
+        return "Sell"
+    else:
+        return "Hold"
 
 if __name__ == '__main__':
     app.debug = True
