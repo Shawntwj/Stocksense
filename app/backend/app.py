@@ -10,6 +10,9 @@
     # pandas_datareader
     # pmdarima
     # statsmodels
+    # keras
+    # sklearn
+    # tensorflow
 
 import time
 import datetime
@@ -54,6 +57,9 @@ from pandas_datareader import data
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
+from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, LSTM
 
 
 app = Flask(__name__)
@@ -492,8 +498,68 @@ def prophet(symbol, df):
     return "hello"
 
 
-def LSTM(symbol, df):
-    return "hello"
+def lstm(symbol, df):
+    close = df['Close']
+
+    #preparing data
+    close.reset_index(inplace = True)
+    close = close[['Date', symbol]]
+
+    #splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(-test_size)
+
+    close.drop('Date', axis=1, inplace = True)
+
+    #convert into x and y
+    scaler = MinMaxScaler(feature_range=(0,1))
+    scaled_data = scaler.fit_transform(close)
+
+    x_train, y_train = [], []
+    for i in range(60,len(train)):
+        x_train.append(scaled_data[i-60:i,0])
+        y_train.append(scaled_data[i,0])
+    x_train, y_train = np.array(x_train), np.array(y_train)
+    x_train = np.reshape(x_train, (x_train.shape[0],x_train.shape[1],1))
+
+    # create and fit the LSTM network
+    model = Sequential()
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(x_train.shape[1],1)))
+    model.add(LSTM(units=50))
+    model.add(Dense(1))
+
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.fit(x_train, y_train, epochs=1, batch_size=1, verbose=2)
+
+    #prediction
+    inputs = close[len(close) - len(test) - 60:].values
+    inputs = inputs.reshape(-1,1)
+    inputs  = scaler.transform(inputs)
+
+    X_test = []
+    for i in range(60,inputs.shape[0]+1):
+        X_test.append(inputs[i-60:i,0])
+    X_test = np.array(X_test)
+
+    X_test = np.reshape(X_test, (X_test.shape[0],X_test.shape[1],1))
+    closing_price = model.predict(X_test)
+    closing_price = scaler.inverse_transform(closing_price)
+    today_prediction = closing_price[-1]
+    closing_price = closing_price[:-1]
+
+    #rmse
+    MSE_error = mean_squared_error(test[symbol], closing_price)
+    MSE_error
+    
+    #combine test and prediction dataframe
+    test['Predictions'] = closing_price
+    test.drop(columns = ['Date'], inplace = True)
+
+    return today_prediction[0], closing_price[-1][0], MSE_error
 
 
 def predict_price(symbol, ml_model):
@@ -514,13 +580,12 @@ def predict_price(symbol, ml_model):
     elif ml_model == 'prophet':
         return prophet(symbol, panel_data)
     elif ml_model == 'LSTM':
-        return LSTM(symbol, panel_data)
+        return lstm(symbol, panel_data)
 
 @app.route("/api/<string:source>/<string:symbol>/<string:senti_type>/<string:ml_type>/")
 def mainFunction(source, symbol, senti_type, ml_type):
     todayPredict, ytdClose, MSE_error = predict_price(symbol, ml_type)
-    print(todayPredict)
-    # predict_price(symbol, ml_type)
+    print(todayPredict, ytdClose, MSE_error)
     return "hello"
 
 if __name__ == '__main__':
