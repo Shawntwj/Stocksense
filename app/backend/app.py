@@ -7,6 +7,9 @@
     # happytransformer
     # psaw
     # flask_cors
+    # pandas_datareader
+    # pmdarima
+    # statsmodels
 
 import time
 import datetime
@@ -45,6 +48,12 @@ import numpy as np
 import flair
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from happytransformer import HappyTextClassification
+
+# libraries for prediction
+from pandas_datareader import data
+from sklearn.metrics import mean_squared_error
+from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
 
 
 app = Flask(__name__)
@@ -422,6 +431,99 @@ def sentiment_score(dct, senti_type):
 
         return df['score'].mean()
 
+
+def autoArimaML(symbol, df):
+
+    close = df['Close']
+    # splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(test_size)
+
+    model = auto_arima(train, start_p=1, start_q=1,max_p=6, max_q=3, m=12, seasonal=True, error_action='ignore',suppress_warnings=True)
+    model.fit(train)
+
+    forecast = model.predict(n_periods=test_size)
+
+    todayPredict = forecast[-1]
+    ytdClose = test[symbol][-1]
+    MSE_error = mean_squared_error(test, forecast)
+
+    return todayPredict, ytdClose, MSE_error
+
+def arima(symbol, df):
+
+    # preprocessing data
+    train_data, test_data = df[0:int(len(df)*0.8)], df[int(len(df)*0.8):]
+    training_data = train_data['Close'].values
+    test_data = test_data['Close'].values
+    history = [x for x in training_data]
+    model_predictions = []
+    N_test_observations = len(test_data)
+    yhat = 0
+    # train model
+    for time_point in range(N_test_observations):
+        try:
+            model = ARIMA(history, order=(4,1,0))
+            model_fit = model.fit()
+            output = model_fit.predict()
+            print(output)
+            yhat = output[0]
+            true_test_value = test_data[time_point]
+            history.append(true_test_value)
+            model_predictions.append(yhat)
+        except Exception as e: 
+            print(e)
+            today_prediction = yhat
+    
+    model_predictions = pd.DataFrame(model_predictions,columns=['Prediction'])
+    print(model_predictions)
+    test = pd.DataFrame(test_data, columns = [symbol])
+
+    # calculating rmse
+    MSE_error = mean_squared_error(test, model_predictions)
+
+    return model_predictions[0], test_data[-1], MSE_error
+    
+
+
+def prophet(symbol, df):
+    return "hello"
+
+
+def LSTM(symbol, df):
+    return "hello"
+
+
+def predict_price(symbol, ml_model):
+    
+    start_date = '2019-01-01'
+
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    end_date = yesterday
+
+    panel_data = data.DataReader([symbol], 'yahoo', start_date, end_date)
+    
+    # ml model: auto arima, arima, prohphet, linear regression, LSTM
+    if ml_model == 'autoarima':
+        return autoArimaML(symbol, panel_data)
+    elif ml_model == 'arima':
+        return arima(symbol, panel_data)
+    elif ml_model == 'prophet':
+        return prophet(symbol, panel_data)
+    elif ml_model == 'LSTM':
+        return LSTM(symbol, panel_data)
+
+@app.route("/api/<string:source>/<string:symbol>/<string:senti_type>/<string:ml_type>/")
+def mainFunction(source, symbol, senti_type, ml_type):
+    todayPredict, ytdClose, MSE_error = predict_price(symbol, ml_type)
+    print(todayPredict)
+    # predict_price(symbol, ml_type)
+    return "hello"
 
 if __name__ == '__main__':
     app.debug = True
