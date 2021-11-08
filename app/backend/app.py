@@ -57,6 +57,7 @@ from pandas_datareader import data
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
+from fbprophet import Prophet
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
@@ -493,9 +494,44 @@ def arima(symbol, df):
     return model_predictions[-1], test_data[-1], MSE_error
     
 
-
 def prophet(symbol, df):
-    return "hello"
+    close = df['Close']
+
+    #preparing data
+    close.reset_index(inplace = True)
+    close = close[['Date', symbol]]
+    close.rename(columns={symbol: 'y', 'Date':'ds'}, inplace = True)
+
+    #splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(test_size)
+
+    #fit the model
+    model = Prophet(daily_seasonality=True)
+    model.fit(train)
+
+    #predictions
+    close_prices = model.make_future_dataframe(periods=len(test)+1)
+    forecast = model.predict(close_prices)
+    today_prediction = forecast['yhat'].to_list()[-1]
+    
+    # combine test and forecast dataframes
+    forecast = pd.DataFrame(forecast,index = test.index,columns=['yhat'])
+    result = pd.concat([forecast, test], axis = 1)
+    
+    #rmse
+    forecast_valid = forecast['yhat'][-test_size:]
+    MSE_error = mean_squared_error(test['y'], forecast_valid)
+    
+    # renaming columns in result
+    result.rename(columns = {'yhat':'Prediction', 'y': symbol}, inplace = True)
+    result.drop(columns = ['ds'], inplace = True)
+    
+    return today_prediction, test['y'].to_list()[-1], MSE_error
 
 
 def lstm(symbol, df):
