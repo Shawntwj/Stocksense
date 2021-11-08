@@ -1,18 +1,8 @@
-# remember to pip install:
-    # flask
-    # git+https://github.com/JustAnotherArchivist/snscrape.git
-    # GoogleNews
-    # newspaper3k
-    # flair
-    # happytransformer
-    # psaw
-    # flask_cors
-    # pandas_datareader
-    # pmdarima
-    # statsmodels
-    # keras
-    # sklearn
-    # tensorflow
+"""
+if running the app for the first time: run
+`pip install -r requirements.txt`
+in this folder to install the packages needed
+"""
 
 import time
 import datetime
@@ -403,7 +393,6 @@ def getDataSentiment(data, senti_type):
         data = finbert_sentiment(data)
     return data
 
-# Helper
 def getResponse(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
@@ -438,9 +427,8 @@ def sentiment_score(dct, senti_type):
 
         return df['score'].mean()
 
-
+# ML models
 def autoArimaML(symbol, df):
-
     close = df['Close']
     # splitting the data
     train_ratio = 0.8
@@ -462,7 +450,6 @@ def autoArimaML(symbol, df):
     return todayPredict, ytdClose, MSE_error
 
 def arima(symbol, df):
-
     # preprocessing data
     train_data, test_data = df[0:int(len(df)*0.8)], df[int(len(df)*0.8):]
     training_data = train_data['Close'].values
@@ -481,10 +468,10 @@ def arima(symbol, df):
             true_test_value = test_data[time_point]
             history.append(true_test_value)
             model_predictions.append(yhat)
-        except Exception as e: 
+        except Exception as e:
             print(e)
             return 0, test_data[-1], 0
-    
+
     model_pred = pd.DataFrame(model_predictions,columns=['Prediction'])
     test = pd.DataFrame(test_data, columns = [symbol])
 
@@ -492,7 +479,6 @@ def arima(symbol, df):
     MSE_error = mean_squared_error(test, model_pred)
 
     return model_predictions[-1], test_data[-1], MSE_error
-    
 
 def prophet(symbol, df):
     close = df['Close']
@@ -518,21 +504,20 @@ def prophet(symbol, df):
     close_prices = model.make_future_dataframe(periods=len(test)+1)
     forecast = model.predict(close_prices)
     today_prediction = forecast['yhat'].to_list()[-1]
-    
+
     # combine test and forecast dataframes
     forecast = pd.DataFrame(forecast,index = test.index,columns=['yhat'])
     result = pd.concat([forecast, test], axis = 1)
-    
+
     #rmse
     forecast_valid = forecast['yhat'][-test_size:]
     MSE_error = mean_squared_error(test['y'], forecast_valid)
-    
+
     # renaming columns in result
     result.rename(columns = {'yhat':'Prediction', 'y': symbol}, inplace = True)
     result.drop(columns = ['ds'], inplace = True)
-    
-    return today_prediction, test['y'].to_list()[-1], MSE_error
 
+    return today_prediction, test['y'].to_list()[-1], MSE_error
 
 def lstm(symbol, df):
     close = df['Close']
@@ -590,16 +575,15 @@ def lstm(symbol, df):
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
     MSE_error
-    
+
     #combine test and prediction dataframe
     test['Predictions'] = closing_price
     test.drop(columns = ['Date'], inplace = True)
 
     return today_prediction[0], closing_price[-1][0], MSE_error
 
-
 def predict_price(symbol, ml_model):
-    
+
     start_date = '2019-01-01'
 
     today = datetime.date.today()
@@ -607,7 +591,7 @@ def predict_price(symbol, ml_model):
     end_date = yesterday
 
     panel_data = data.DataReader([symbol], 'yahoo', start_date, end_date)
-    
+
     # ml model: auto arima, arima, prohphet, linear regression, LSTM
     if ml_model == 'autoarima':
         return autoArimaML(symbol, panel_data)

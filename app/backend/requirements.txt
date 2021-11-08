@@ -1,0 +1,15 @@
+flask
+git+https://github.com/JustAnotherArchivist/snscrape.git
+GoogleNews
+newspaper3k
+flair
+happytransformer
+psaw
+flask_cors
+pandas_datareader
+pmdarima
+statsmodels
+fbprophet
+sklearn
+tensorflow
+keras
