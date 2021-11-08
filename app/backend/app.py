@@ -470,23 +470,21 @@ def arima(symbol, df):
             model = ARIMA(history, order=(4,1,0))
             model_fit = model.fit()
             output = model_fit.predict()
-            print(output)
-            yhat = output[0]
+            yhat = output[-1]
             true_test_value = test_data[time_point]
             history.append(true_test_value)
             model_predictions.append(yhat)
         except Exception as e: 
             print(e)
-            today_prediction = yhat
+            return 0, test_data[-1], 0
     
-    model_predictions = pd.DataFrame(model_predictions,columns=['Prediction'])
-    print(model_predictions)
+    model_pred = pd.DataFrame(model_predictions,columns=['Prediction'])
     test = pd.DataFrame(test_data, columns = [symbol])
 
     # calculating rmse
-    MSE_error = mean_squared_error(test, model_predictions)
+    MSE_error = mean_squared_error(test, model_pred)
 
-    return model_predictions[0], test_data[-1], MSE_error
+    return model_predictions[-1], test_data[-1], MSE_error
     
 
 
