@@ -70,13 +70,7 @@ export default function Chart({ data, type }) {
 
             {/* <Grid container spacing={3}>
                 <Grid item>
-                    <Typography variant="body1" style={{ paddingLeft: 10 }}> View Daterange:</Typography>
-                </Grid>
-                <Grid item>
-                    <DateRangePicker
-                        onChange={onChange}
-                        value={value} //default keep to 7 days or lesser
-                    />
+                    <Typography variant="body1" style={{ paddingLeft: 10 }}> Price and C:</Typography>
                 </Grid>
             </Grid> */}
             <ResponsiveContainer width="100%" height="100%">

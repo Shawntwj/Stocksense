@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
+import CheckIcon from '@mui/icons-material/Check';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { mainListItems, secondaryListItems } from '../dashboard/listItems';
 import { Typography, Divider, TextField } from '@mui/material';
@@ -25,7 +26,7 @@ import moment from 'moment';
 
 import Chart from './Chart';
 import Button from 'react-bootstrap/Button';
-
+import Stocks from './Stocks';
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -444,14 +445,32 @@ function DashboardContent() {
                   <Grid item>
                     Correlation Score (price and sentiment): 0.803
                   </Grid>
-                  <Grid item>
-                    Correlation Score (volume and sentiment): 0.803
+                  <Grid item container style={{ direction: "column" }}>
+                    <Grid item>
+                      Yesterday Price: $13
+                    </Grid>
+                    <Grid item style={{ paddingLeft: 5 }}>
+                      |
+                    </Grid>
+                    <Grid item style={{ paddingLeft: 5 }}>
+                      Today Price: $14
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Typography style={{ fontWeight: "bold" }}>Decision: BUY</Typography>
+
+                  <Grid item container style={{ direction: "column" }}>
+                    <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Predicted price greater than yesterday price</Typography>
                   </Grid>
+                  <Grid item container style={{ direction: "column" }}>
+                    <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>High correlation score</Typography>
+                  </Grid>
+                  {/* <Grid item container style={{ direction: "column" }}>
+                    <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Sentiment score follows price trend</Typography>
+                  </Grid> */}
                   <Grid item>
                     <Typography style={{ fontWeight: "bold" }}>Confidence Score: 80%</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography style={{ fontWeight: "bold", color: "green" }}>Overall Decision: BUY</Typography>
                   </Grid>
                   {/* <Grid item>
                     <div style={{ height: 150 }}>
@@ -510,7 +529,8 @@ function DashboardContent() {
                     height: 240,
                   }}
                 >
-                  <Chart data={graphData} type={"price"}/>
+                  <Typography style={{ fontWeight: "bold" }}>Overall Sentiment and Price for 24 Hours</Typography>
+                  <Chart data={graphData} type={"price"} />
                 </Paper>
               </Grid>
 
@@ -523,7 +543,23 @@ function DashboardContent() {
                     height: 240,
                   }}
                 >
+                  <Typography style={{ fontWeight: "bold" }}>Train, Test and Predicted Price</Typography>
                   <Chart data={graphData2} />
+                </Paper>
+              </Grid>
+
+
+              <Grid item xs={12}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                  }}
+                >
+                  <Typography style={{ fontWeight: "bold" }}>Top 10 Posts/Comments with Highest Sentiment Score</Typography>
+                  <Stocks/>
                 </Paper>
               </Grid>
             </Grid>
