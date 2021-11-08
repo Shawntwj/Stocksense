@@ -89,9 +89,7 @@ def getStocktwits(symbol, senti_type):
             data_dict = req.json()
 
             if data_dict["response"]["status"] == 200:
-                
                 main_body = data_dict["messages"]
-                print(main_body)
                 for i in range(len(main_body)):
                     person_id_data = main_body[i]["id"]
                     content_data = main_body[i]["body"]
@@ -107,7 +105,7 @@ def getStocktwits(symbol, senti_type):
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     # if (start_date == end_date):
-                        
+
                     time_created_data = timelist[1][:-1]
 
                     username_data = main_body[i]["user"]["username"]
@@ -140,7 +138,6 @@ def getStocktwits(symbol, senti_type):
 
             j += 1
 
-        # print(data)
         return getResponse(data, senti_type)
 
 # News scraper
@@ -185,7 +182,6 @@ def getGoogleNewsLinks(symbol, start_date):
     for i in range(2, 20):
         googlenews.getpage(i)
         result=googlenews.result()
-        print(result)
         df=pd.DataFrame(result)
 
     for ind in df.index:
@@ -214,7 +210,6 @@ def getTwitter(symbol, senti_type):
     end_date = datetime.datetime.today()
     start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
-    print(f"{symbol} since:{start_date} until:{end_date}")
 
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
@@ -232,7 +227,6 @@ def getTwitter(symbol, senti_type):
     return getResponse(data, senti_type)
 
 # Reddit scraper
-
 def reddit_sentiment_comment(search, start, end, subreddit):
     api = PushshiftAPI()
 
@@ -289,24 +283,27 @@ def reddit_sentiment_post(search, start, end, subreddit):
 
     return posts
 
-def getReddit(redditType, symbol, start_date, senti_type):
-    """convert date format to %d/%m/%Y"""
-    start = "/".join(start_date.split("-")[::-1])
-    end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
+def getReddit(redditType, symbol, senti_type):
+    today = datetime.datetime.today()
+    start_date = (today - datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+    end_date = (today + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+    # """convert date format to %d/%m/%Y"""
+    # start = "/".join(start_date.split("-")[::-1])
+    # end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
     sub = "stocks"
     if redditType == "comment":
-        data = reddit_sentiment_comment(symbol, start, end, sub)
+        data = reddit_sentiment_comment(symbol, start_date, end_date, sub)
     elif  redditType == "post":
-        data = reddit_sentiment_post(symbol, start, end, sub)
+        data = reddit_sentiment_post(symbol, start_date, end_date, sub)
     return getResponse(data, senti_type)
 
-@app.route('/api/reddit/comment/<string:symbol>/<string:start_date>/<string:senti_type>/')
-def getRedditComments(symbol, start_date, senti_type):
-    return getReddit("comment", symbol, start_date, senti_type)
+@app.route('/api/reddit:comment/<string:symbol>/<string:senti_type>/')
+def getRedditComments(symbol, senti_type):
+    return getReddit("comment", symbol, senti_type)
 
-@app.route('/api/reddit/post/<string:symbol>/<string:start_date>/<string:senti_type>/')
-def getRedditPosts(symbol, start_date, senti_type):
-    return getReddit("post", symbol, start_date, senti_type)
+@app.route('/api/reddit:post/<string:symbol>/<string:senti_type>/')
+def getRedditPosts(symbol, senti_type):
+    return getReddit("post", symbol, senti_type)
 
 # Clean
 def getCleanedContent(data):
@@ -394,7 +391,6 @@ def getDataSentiment(data, senti_type):
 def getResponse(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
-    sentimentData = cleanedData
     score = sentiment_score(sentimentData, senti_type)
     return jsonify({"data": sentimentData, "score": score})
 
@@ -412,18 +408,18 @@ def sentiment_score(dct, senti_type):
         else:
             sentiment.append(post['sentiment'])
             score.append(float(post['score']))
-    
+
     if (senti_type == "vader"):
         return statistics.mean(score)
     else:
         df = pd.DataFrame({'sentiment':sentiment, 'score':score})
-        
+
         for index, row in df.iterrows():
             if row['sentiment'].lower() == 'negative':
                 df.at[index,"score"] = 0 - row['score']
             else:
                 df.at[index,"score"] = row['score']
-            
+
         return df['score'].mean()
 
 
