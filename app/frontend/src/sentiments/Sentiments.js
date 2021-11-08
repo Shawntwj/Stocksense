@@ -85,6 +85,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+
 const mdTheme = createTheme();
 
 const words = [
@@ -134,22 +135,106 @@ function DashboardContent() {
     setStock(event.target.value);
   };
 
+  const graphData = [
+    {
+      date: "20/10/2021",
+      negative: 18,
+      positive: 14,
+      volume: 1400,
+      cnt: 490,
+      price: 10
+    },
+    {
+      date: '21/10/2021',
+      negative: 5,
+      positive: 10,
+      volume: 1506,
+      cnt: 590,
+      price: 11
+    },
+    {
+      date: '22/10/2021',
+      negative: 4,
+      positive: 10,
+      volume: 989,
+      cnt: 350,
+      price: 12
+    },
+    {
+      date: '23/10/2021',
+      negative: 40,
+      positive: 20,
+      volume: 1228,
+      cnt: 480,
+      price: 14
+    },
+    {
+      date: '24/10/2021',
+      negative: 20,
+      positive: 10,
+      volume: 1100,
+      cnt: 460,
+      price: 15
+    },
+    {
+      date: '25/10/2021',
+      negative: 50,
+      positive: 10,
+      volume: 1700,
+      cnt: 380,
+      price: 13
+    },
+  ];
+
+  const graphData2 = [
+    {
+      date: "20/10/2021",
+      prediction: 10,
+      actual: 12
+    },
+    {
+      date: '21/10/2021',
+      prediction: 11,
+      actual: 10
+    },
+    {
+      date: '22/10/2021',
+      prediction: 12,
+      actual: 11
+    },
+    {
+      date: '23/10/2021',
+      prediction: 14,
+      actual: 16
+    },
+    {
+      date: '24/10/2021',
+      prediction: 15,
+      actual: 16
+    },
+    {
+      date: '25/10/2021',
+      prediction: 13,
+      actual: 14
+    },
+  ];
+
+
   const handleClick = async () => {
     //console.log(stock, model, value, ml, data);
     let date = moment(value).format("YYYY-MM-DD");
-    if(data=="reddit"){
+    if (data == "reddit") {
       var url = `http://localhost:8000/api/${data}/comment/${stock}/${date}`
 
-    }else{
+    } else {
       var url = `http://localhost:8000/api/${data}/${stock}/${date}`
- 
+
     }
-       
     console.log(url)
     let response = await fetch(url)
     //console.log(response)
     let res = await response.json()
-    
+
     console.log(res)
     return res
   }
@@ -425,7 +510,20 @@ function DashboardContent() {
                     height: 240,
                   }}
                 >
-                  <Chart />
+                  <Chart data={graphData} type={"price"}/>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                  }}
+                >
+                  <Chart data={graphData2} />
                 </Paper>
               </Grid>
             </Grid>
