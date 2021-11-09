@@ -48,7 +48,7 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-export default function Stocks() {
+export default function Stocks({ data }) {
   return (
     <React.Fragment>
       {/* <Title>Recent Stock Prices</Title> */}
@@ -56,18 +56,18 @@ export default function Stocks() {
         <TableHead>
           <TableRow>
             <TableCell>Timestamp</TableCell>
-            <TableCell>Data Source</TableCell>
             <TableCell>Comments</TableCell>
-            <TableCell align="right">Sentiment Score</TableCell>
+            <TableCell>Sentiment Score</TableCell>
+            <TableCell align="right">Sentiment Result</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {data?.length > 0 && data.map((row) => (
             <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.source}</TableCell>
-              <TableCell>{row.comments}</TableCell>
-              <TableCell align="right">{row.score}</TableCell>
+              <TableCell>{row.datetime}</TableCell>
+              <TableCell>{row.content}</TableCell>
+              <TableCell>{row.score}</TableCell>
+              <TableCell align="right">{row.sentiment}</TableCell>
             </TableRow>
           ))}
         </TableBody>

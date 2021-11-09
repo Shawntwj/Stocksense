@@ -113,6 +113,7 @@ function DashboardContent() {
   const [error, setError] = React.useState("");
   const [words, setWords] = React.useState([])
   const [sentimentGraph, setSentimentGraph] = React.useState([])
+  const [table, setTable] = React.useState([])
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
@@ -128,45 +129,6 @@ function DashboardContent() {
   const handleStockChange = (event) => {
     setStock(event.target.value);
   };
-
-  // const graphData = [
-  //   {
-  //     date: "20/10/2021",
-  //     negative: 18,
-  //     positive: 14,
-  //     price: 10
-  //   },
-  //   {
-  //     date: '21/10/2021',
-  //     negative: 5,
-  //     positive: 10,
-  //     price: 11
-  //   },
-  //   {
-  //     date: '22/10/2021',
-  //     negative: 4,
-  //     positive: 10,
-  //     price: 12
-  //   },
-  //   {
-  //     date: '23/10/2021',
-  //     negative: 40,
-  //     positive: 20,
-  //     price: 14
-  //   },
-  //   {
-  //     date: '24/10/2021',
-  //     negative: 20,
-  //     positive: 10,
-  //     price: 15
-  //   },
-  //   {
-  //     date: '25/10/2021',
-  //     negative: 50,
-  //     positive: 10,
-  //     price: 13
-  //   },
-  // ];
 
   const graphData2 = [
     {
@@ -220,6 +182,7 @@ function DashboardContent() {
       setTodayPrice(sentiment.todayPredict)
       setWords(sentiment.words)
       setSentimentGraph(sentiment.data)
+      setTable(sentiment.top10)
     }
     return res
   }
@@ -561,11 +524,11 @@ function DashboardContent() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: "100%",
                   }}
                 >
                   <Typography style={{ fontWeight: "bold" }}>Top 10 Posts/Comments with Highest Sentiment Score</Typography>
-                  <Stocks />
+                  <Stocks data={table} />
                 </Paper>
               </Grid>
             </Grid>
