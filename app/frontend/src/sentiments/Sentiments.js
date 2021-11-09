@@ -19,9 +19,9 @@ import { Typography, Divider, TextField } from '@mui/material';
 import MenuItem from '@material-ui/core/MenuItem';
 import GaugeChart from 'react-gauge-chart'
 import ReactWordcloud from 'react-wordcloud';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
+// import AdapterDateFns from '@mui/lab/AdapterDateFns';
+// import LocalizationProvider from '@mui/lab/LocalizationProvider';
+// import DatePicker from '@mui/lab/DatePicker';
 import moment from 'moment';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -112,7 +112,7 @@ function DashboardContent() {
   const [sentimentScore, setSentimentScore] = React.useState(0);
   const [error, setError] = React.useState("");
   const [words, setWords] = React.useState([])
-
+  const [sentimentGraph, setSentimentGraph] = React.useState([])
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
@@ -129,56 +129,44 @@ function DashboardContent() {
     setStock(event.target.value);
   };
 
-  const graphData = [
-    {
-      date: "20/10/2021",
-      negative: 18,
-      positive: 14,
-      volume: 1400,
-      cnt: 490,
-      price: 10
-    },
-    {
-      date: '21/10/2021',
-      negative: 5,
-      positive: 10,
-      volume: 1506,
-      cnt: 590,
-      price: 11
-    },
-    {
-      date: '22/10/2021',
-      negative: 4,
-      positive: 10,
-      volume: 989,
-      cnt: 350,
-      price: 12
-    },
-    {
-      date: '23/10/2021',
-      negative: 40,
-      positive: 20,
-      volume: 1228,
-      cnt: 480,
-      price: 14
-    },
-    {
-      date: '24/10/2021',
-      negative: 20,
-      positive: 10,
-      volume: 1100,
-      cnt: 460,
-      price: 15
-    },
-    {
-      date: '25/10/2021',
-      negative: 50,
-      positive: 10,
-      volume: 1700,
-      cnt: 380,
-      price: 13
-    },
-  ];
+  // const graphData = [
+  //   {
+  //     date: "20/10/2021",
+  //     negative: 18,
+  //     positive: 14,
+  //     price: 10
+  //   },
+  //   {
+  //     date: '21/10/2021',
+  //     negative: 5,
+  //     positive: 10,
+  //     price: 11
+  //   },
+  //   {
+  //     date: '22/10/2021',
+  //     negative: 4,
+  //     positive: 10,
+  //     price: 12
+  //   },
+  //   {
+  //     date: '23/10/2021',
+  //     negative: 40,
+  //     positive: 20,
+  //     price: 14
+  //   },
+  //   {
+  //     date: '24/10/2021',
+  //     negative: 20,
+  //     positive: 10,
+  //     price: 15
+  //   },
+  //   {
+  //     date: '25/10/2021',
+  //     negative: 50,
+  //     positive: 10,
+  //     price: 13
+  //   },
+  // ];
 
   const graphData2 = [
     {
@@ -222,7 +210,6 @@ function DashboardContent() {
     let response = await fetch(url)
     let res = await response.json()
 
-
     let sentiment = res?.sentiment
     if (sentiment) {
       setCorr(sentiment.corr)
@@ -232,6 +219,7 @@ function DashboardContent() {
       setYstdPrice(sentiment.ytdClose)
       setTodayPrice(sentiment.todayPredict)
       setWords(sentiment.words)
+      setSentimentGraph(sentiment.data)
     }
     return res
   }
@@ -509,7 +497,7 @@ function DashboardContent() {
                 >
                   <Typography variant="h6" style={{ fontWeight: "bold" }}>Word Cloud</Typography>
 
-                  <div style={{ height: 150 }}>
+                  <div style={{ height: 200, width:"100%" }}>
                     <ReactWordcloud words={words} />
                   </div>
                 </Paper>
@@ -544,11 +532,11 @@ function DashboardContent() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 400,
                   }}
                 >
-                  <Typography style={{ fontWeight: "bold" }}>Overall Sentiment and Price for 24 Hours</Typography>
-                  <Chart data={graphData} type={"price"} />
+                  <Typography style={{ fontWeight: "bold" }}>Overall Sentiment for 24 Hours</Typography>
+                  <Chart data={sentimentGraph} type={"price"} />
                 </Paper>
               </Grid>
 
@@ -558,7 +546,7 @@ function DashboardContent() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 400,
                   }}
                 >
                   <Typography style={{ fontWeight: "bold" }}>Train, Test and Predicted Price</Typography>
