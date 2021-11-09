@@ -77,6 +77,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
         source = 'reddit'
     data = response["data"]
     sentiment = response["score"]
+    senti_grouped = response["senti_grouped"]
 
     # extract correlation score from exported excel
     if source == 'twitter' and symbol == 'msft':
@@ -107,9 +108,11 @@ def mainFunction(source, symbol, senti_type, ml_type):
     for [k,v] in dic.items():
         words.append({"text":k, "value":v})
 
-    return jsonify({"decision":decision, "error":MSE_error, "score": sentiment, "words":words, "data":data})
+    return jsonify({"decision":decision, "error":MSE_error, "todayPredict":todayPredict, "ytdClose":ytdClose, "score": sentiment, "words":words, "data":senti_grouped, "corr": correlation})
 
-
+@app.route('/')
+def healthCheck():
+    return 200
 
 # Stocktwits scraper
 def first_check(symbol):
@@ -148,11 +151,16 @@ def getStocktwits(symbol, senti_type):
             if data_dict["response"]["status"] == 200:
                 main_body = data_dict["messages"]
                 for i in range(len(main_body)):
-                    person_id_data = main_body[i]["id"]
+                    # person_id_data = main_body[i]["id"]
                     content_data = main_body[i]["body"]
 
                     content_data = content_data.replace("’", "'")
                     content_data = content_data.replace("&#39;","'")
+
+                    newdatetime = main_body[i]["created_at"]
+                    formatfrom="%Y-%m-%dT%H:%M:%SZ"
+                    formatto="%a %d %b %Y, %H:%M:%S GMT"
+                    newdatetime = datetime.datetime.strptime(newdatetime,formatfrom).strftime(formatto)
 
                     time = main_body[i]["created_at"]
                     timelist = time.split("T")
@@ -163,34 +171,35 @@ def getStocktwits(symbol, senti_type):
 
                     # if (start_date == end_date):
 
-                    time_created_data = timelist[1][:-1]
+                    # time_created_data = timelist[1][:-1]
 
-                    username_data = main_body[i]["user"]["username"]
-                    name_data = main_body[i]["user"]["name"]
-                    join_date_data = main_body[i]["user"]["join_date"]
-                    official_data = main_body[i]["user"]["official"]
-                    followers_data = main_body[i]["user"]["followers"]
-                    source_data =  main_body[i]["source"]["title"]
-                    try:
-                        likes_data =  main_body[i]["likes"]["total"]
-                    except:
-                        likes_data = 0
+                    # username_data = main_body[i]["user"]["username"]
+                    # name_data = main_body[i]["user"]["name"]
+                    # join_date_data = main_body[i]["user"]["join_date"]
+                    # official_data = main_body[i]["user"]["official"]
+                    # followers_data = main_body[i]["user"]["followers"]
+                    # source_data =  main_body[i]["source"]["title"]
+                    # try:
+                    #     likes_data =  main_body[i]["likes"]["total"]
+                    # except:
+                    #     likes_data = 0
 
                     postid = data_dict["cursor"]["max"]
                     postid = "&max=" + str(postid)
 
                     data.append({
-                        "person_id": person_id_data,
+                        # "person_id": person_id_data,
                         "content": content_data,
-                        "date_created": date_created_data,
-                        "time_created": time_created_data,
-                        "username": username_data,
-                        "name": name_data,
-                        "join_date": join_date_data,
-                        "official": official_data,
-                        "followers": followers_data,
-                        "source": source_data,
-                        "likes": likes_data
+                        "datetime": newdatetime,
+                        # "date_created": date_created_data,
+                        # "time_created": time_created_data,
+                        # "username": username_data,
+                        # "name": name_data,
+                        # "join_date": join_date_data,
+                        # "official": official_data,
+                        # "followers": followers_data,
+                        # "source": source_data,
+                        # "likes": likes_data
                     })
 
             j += 1
@@ -212,14 +221,14 @@ def getArticleSummary(parsed_news, start_date):
             article.parse()
             article.nlp()
 
-            dicti['title']=article.title
+            # dicti['title']=article.title
             dicti['content']=article.text
-            dicti['summary']=article.summary
-            dicti['link']=ind[1]
+            # dicti['summary']=article.summary
+            # dicti['link']=ind[1]
             if article.publish_date == None:
-                dicti['date']=start_date
+                dicti['datetime']=start_date
             else:
-                dicti['date']=article.publish_date
+                dicti['datetime']=article.publish_date
 
             data.append(dicti)
         except:
@@ -272,13 +281,13 @@ def getTwitter(symbol, senti_type):
     for i,tweet in enumerate(items):
         if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
             data.append({
-                "username": tweet.user.username,
+                # "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
-                "followers": tweet.user.followersCount,
-                "comments": tweet.replyCount,
-                "shares": tweet.retweetCount,
-                "likes": tweet.likeCount
+                # "followers": tweet.user.followersCount,
+                # "comments": tweet.replyCount,
+                # "shares": tweet.retweetCount,
+                # "likes": tweet.likeCount
             })
 
     return getResult(data, senti_type)
@@ -299,12 +308,12 @@ def reddit_sentiment_comment(search, start, end, subreddit):
             if comment.body != '[removed]' and comment.body != '[deleted]' and search[0] in comment.body or search[1] in comment.body or search[2] in comment.body or search[3] in comment.body or search[4] in comment.body: # Remove the deleted posts
                 comments.append({
                     'content':comment.body,
-                    'username':comment.author_fullname,
-                    'score':comment.score,
-                    'comment_id':comment.id,
-                    'subreddit':comment.subreddit,
-                    'parent_id':comment.parent_id,
-                    'created':datetime.datetime.fromtimestamp(comment.created)
+                    # 'username':comment.author_fullname,
+                    # 'score':comment.score,
+                    # 'comment_id':comment.id,
+                    # 'subreddit':comment.subreddit,
+                    # 'parent_id':comment.parent_id,
+                    'datetime':datetime.datetime.fromtimestamp(comment.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
@@ -325,13 +334,13 @@ def reddit_sentiment_post(search, start, end, subreddit):
         try: # Try/except to catch any erroneous post pulls
             if post.title != '[removed]' and post.title != '[deleted]'and search[0] in post.title or search[1] in post.title or search[2] in post.title or search[3] in post.title or search[4] in post.title:
                 posts.append({
-                    'title':post.title,
-                    'score':post.score,
-                    'upvote_ratio':post.upvote_ratio,
-                    'id':post.id,
-                    'subreddit':post.subreddit,
-                    'url':post.url,
-                    'num_comments':post.num_comments,
+                    # 'title':post.title,
+                    # 'score':post.score,
+                    # 'upvote_ratio':post.upvote_ratio,
+                    # 'id':post.id,
+                    # 'subreddit':post.subreddit,
+                    # 'url':post.url,
+                    # 'num_comments':post.num_comments,
                     'content':post.selftext,
                     'created':datetime.datetime.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
@@ -452,7 +461,8 @@ def getResult(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
     score = sentiment_score(sentimentData, senti_type)
-    return {"data": sentimentData, "score": score}
+    senti_grouped = sentiment_by_datetime(sentimentData)
+    return {"data": sentimentData, "score": score, "senti_grouped": senti_grouped}
 
 # Average Sentiment 24 hours
 def sentiment_score(dct, senti_type):
@@ -481,6 +491,27 @@ def sentiment_score(dct, senti_type):
                 df.at[index,"score"] = row['score']
 
         return df['score'].mean()
+
+# Average Sentiment by datetime
+def sentiment_by_datetime(data):
+	df = pd.DataFrame(data)
+	df.datetime = pd.to_datetime(df.datetime)
+	df['score'] = df['score'].astype(float)
+	df2 = df.set_index('datetime').groupby([pd.Grouper(freq='H'), 'sentiment']).mean()
+	df_dict = df2.to_dict()
+	sentiment_group = {}
+
+	for k, v in df_dict["score"].items():
+		print(k[0], k[1], v)
+		
+		date2 = str(pd.to_datetime(k[0]))
+
+		if date2 in sentiment_group:
+			sentiment_group[date2].append(v)
+		else:
+			sentiment_group[date2] = [v]
+
+	return sentiment_group
 
 # ML models
 def autoArimaML(symbol, df):
