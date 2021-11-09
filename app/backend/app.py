@@ -394,8 +394,12 @@ def flair_sentiment(data):
     for row in data:
         s = flair.data.Sentence(row["content"])
         flair_sentiment.predict(s)
-        sentiment = str(s.labels[0]).split()[0]
-        score = str(s.labels[0]).split()[1][1:-1]
+        if len(s.labels) == 0 | len(str(s.labels[0])) == 0:
+            sentiment = 0
+            score = 0
+        else:
+            sentiment = str(s.labels[0]).split()[0]
+            score = str(s.labels[0]).split()[1][1:-1]
 
         row["sentiment"] = sentiment
         row["score"] = score
@@ -619,7 +623,6 @@ def lstm(symbol, df):
 
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
-    MSE_error
 
     #combine test and prediction dataframe
     test['Predictions'] = closing_price

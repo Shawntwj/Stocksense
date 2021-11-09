@@ -13,3 +13,4 @@ fbprophet
 sklearn
 tensorflow
 keras
+openpyxl
