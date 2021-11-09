@@ -78,6 +78,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
     data = response["data"]
     sentiment = response["score"]
     senti_grouped = response["senti_grouped"]
+    top10 = response["top10"]
 
     # extract correlation score from exported excel
     if source == 'twitter' and symbol == 'msft':
@@ -108,7 +109,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
     for [k,v] in dic.items():
         words.append({"text":k, "value":v})
 
-    return jsonify({"decision":decision, "error":MSE_error, "todayPredict":todayPredict, "ytdClose":ytdClose, "score": sentiment, "words":words, "data":senti_grouped, "corr": correlation})
+    return jsonify({"decision":decision, "error":str(MSE_error), "todayPredict":str(todayPredict), "ytdClose":str(ytdClose), "score": str(sentiment), "words":words, "data":senti_grouped, "corr": str(correlation), "top10": top10})
 
 @app.route('/')
 def healthCheck():
@@ -460,9 +461,10 @@ def getDataSentiment(data, senti_type):
 def getResult(data, senti_type):
     cleanedData = getCleanedContent(data)
     sentimentData = getDataSentiment(cleanedData, senti_type)
+    top10 = top_10(sentimentData)
     score = sentiment_score(sentimentData, senti_type)
     senti_grouped = sentiment_by_datetime(sentimentData)
-    return {"data": sentimentData, "score": score, "senti_grouped": senti_grouped}
+    return {"data": sentimentData, "score": score, "senti_grouped": senti_grouped, "top10": top10}
 
 # Average Sentiment 24 hours
 def sentiment_score(dct, senti_type):
@@ -514,19 +516,25 @@ def sentiment_by_datetime(data):
 
 	new_group = []
 	for key, val in sentiment_group.items():
-		positive = 0
-		negative = 0
+		positive = 0.0
+		negative = 0.0
 		if 'POSITIVE' in val.keys():
 			positive = val["POSITIVE"]
 		if 'NEGATIVE' in val.keys():
 			negative = val["NEGATIVE"]
 		new_group.append({
 			"date": key,
-			"negative": negative,
-			"positive": positive
+			"negative": str(negative),
+			"positive": str(positive)
 		})
 
 	return new_group
+
+def top_10(data):
+	df = pd.DataFrame(data)
+	result = df.sort_values(by=['score'], ascending=False)
+	top10 = result.to_dict("records")[:10]
+	return top10
 
 # ML models
 def autoArimaML(symbol, df):
@@ -676,6 +684,9 @@ def lstm(symbol, df):
 
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
+
+    test['Predictions'] = closing_price
+    test.drop(columns = ['Date'], inplace = True)
 
     return today_prediction[0], closing_price[-1][0], MSE_error
 
