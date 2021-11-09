@@ -502,8 +502,7 @@ def sentiment_by_datetime(data):
 	sentiment_group = {}
 
 	for k, v in df_dict["score"].items():
-		print(k[0], k[1], v)
-		
+
 		date2 = str(pd.to_datetime(k[0]))
 
 		if date2 in sentiment_group:
