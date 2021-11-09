@@ -382,6 +382,12 @@ function DashboardContent() {
                         <MenuItem key={"vader"} value="vader">
                           Vader
                         </MenuItem>
+                        <MenuItem key={"flair"} value="flair">
+                          Flair
+                        </MenuItem>
+                        <MenuItem key={"finvert"} value="finvert">
+                          Finvert
+                        </MenuItem>
                       </TextField>
                     </Grid>
                     <Grid item xs={3} style={{ paddingLeft: 20 }}>
@@ -392,10 +398,18 @@ function DashboardContent() {
                         label="ML Model"
                         style={{ minWidth: "100%" }}
                       >
-                        <MenuItem key={"fbprophet"} value="fbprophet">
+                        <MenuItem key={"autoarima"} value="autoarima">
+                          Autoarima
+                        </MenuItem>
+                        <MenuItem key={"arima"} value="arima">
+                          Arima
+                        </MenuItem>
+                        <MenuItem key={"prophet"} value="prophet">
                           fbprophet
                         </MenuItem>
-
+                        <MenuItem key={"LSTM"} value="LSTM">
+                          LSTM
+                        </MenuItem>
                       </TextField>
                     </Grid>
                   </div>
@@ -559,7 +573,7 @@ function DashboardContent() {
                   }}
                 >
                   <Typography style={{ fontWeight: "bold" }}>Top 10 Posts/Comments with Highest Sentiment Score</Typography>
-                  <Stocks/>
+                  <Stocks />
                 </Paper>
               </Grid>
             </Grid>
