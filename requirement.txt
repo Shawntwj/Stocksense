@@ -1,0 +1,5 @@
+conda install -c intel scikit-learn
+conda install -c conda-forge pmdarima
+conda install pystan -c conda-forge
+conda install -c conda-forge prophet
+conda install -c conda-forge keras
