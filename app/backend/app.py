@@ -502,15 +502,31 @@ def sentiment_by_datetime(data):
 	sentiment_group = {}
 
 	for k, v in df_dict["score"].items():
-
-		date2 = str(pd.to_datetime(k[0]))
-
+		date2 = pd.to_datetime(k[0])
+		inner = {}
 		if date2 in sentiment_group:
-			sentiment_group[date2].append(v)
+			inner = sentiment_group[date2]
+			inner[k[1]] = v
+			sentiment_group[date2] = inner
 		else:
-			sentiment_group[date2] = [v]
+			inner[k[1]] = v
+			sentiment_group[date2] = inner
 
-	return sentiment_group
+	new_group = []
+	for key, val in sentiment_group.items():
+		positive = 0
+		negative = 0
+		if 'POSITIVE' in val.keys():
+			positive = val["POSITIVE"]
+		if 'NEGATIVE' in val.keys():
+			negative = val["NEGATIVE"]
+		new_group.append({
+			"date": key,
+			"negative": negative,
+			"positive": positive
+		})
+
+	return new_group
 
 # ML models
 def autoArimaML(symbol, df):
@@ -660,10 +676,6 @@ def lstm(symbol, df):
 
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
-
-    #combine test and prediction dataframe
-    test['Predictions'] = closing_price
-    test.drop(columns = ['Date'], inplace = True)
 
     return today_prediction[0], closing_price[-1][0], MSE_error
 
