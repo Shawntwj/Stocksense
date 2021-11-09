@@ -23,6 +23,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import moment from 'moment';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import Chart from './Chart';
 import Button from 'react-bootstrap/Button';
@@ -89,24 +90,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const mdTheme = createTheme();
 
-const words = [
-  {
-    text: 'told',
-    value: 64,
-  },
-  {
-    text: 'moon',
-    value: 50,
-  },
-  {
-    text: 'hold',
-    value: 100,
-  },
-  {
-    text: 'bad',
-    value: 30,
-  },
-]
+
 
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
@@ -115,11 +99,20 @@ function DashboardContent() {
   };
 
 
-  const [model, setModel] = React.useState('');
-  const [stock, setStock] = React.useState('');
-  const [data, setData] = React.useState('');
-  const [ml, setMl] = React.useState('');
+  const [model, setModel] = React.useState('flair');
+  const [stock, setStock] = React.useState('aapl');
+  const [data, setData] = React.useState('twitter');
+  const [ml, setMl] = React.useState('autoarima');
   const [value, setValue] = React.useState(new Date());
+
+  const [corr, setCorr] = React.useState("");
+  const [ystdPrice, setYstdPrice] = React.useState("");
+  const [todayPrice, setTodayPrice] = React.useState("");
+  const [decision, setDecision] = React.useState("");
+  const [sentimentScore, setSentimentScore] = React.useState(0);
+  const [error, setError] = React.useState("");
+  const [words, setWords] = React.useState([])
+
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
@@ -224,19 +217,22 @@ function DashboardContent() {
   const handleClick = async () => {
     //console.log(stock, model, value, ml, data);
     let date = moment(value).format("YYYY-MM-DD");
-    if (data == "reddit") {
-      var url = `http://localhost:8000/api/${data}/comment/${stock}/${date}`
-
-    } else {
-      var url = `http://localhost:8000/api/${data}/${stock}/${date}`
-
-    }
+    var url = `http://localhost:8000/api/${data}/${stock}/${model}/${ml}`
     console.log(url)
     let response = await fetch(url)
-    //console.log(response)
     let res = await response.json()
 
-    console.log(res)
+
+    let sentiment = res?.sentiment
+    if (sentiment) {
+      setCorr(sentiment.corr)
+      setDecision(sentiment.decision)
+      setError(sentiment.error)
+      setSentimentScore(sentiment.score)
+      setYstdPrice(sentiment.ytdClose)
+      setTodayPrice(sentiment.todayPredict)
+      setWords(sentiment.words)
+    }
     return res
   }
   return (
@@ -413,9 +409,9 @@ function DashboardContent() {
                       </TextField>
                     </Grid>
                   </div>
-                  <div style={{ paddingTop: 10, flexDirection: 'row', display: "flex", alignSelf: "flex-start" }}>
+                  <div style={{ paddingTop: 10, flexDirection: 'row', display: "flex", alignSelf: "flex-end" }}>
                     <Grid item style={{ paddingLeft: 20, paddingTop: 10 }}>
-                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                           label="Date"
                           value={value}
@@ -424,7 +420,7 @@ function DashboardContent() {
                           }}
                           renderInput={(params) => <TextField {...params} />}
                         />
-                      </LocalizationProvider>
+                      </LocalizationProvider> */}
                     </Grid>
 
                     <Grid item style={{ paddingLeft: 20, paddingTop: 12 }}>
@@ -457,34 +453,41 @@ function DashboardContent() {
                     <Typography variant="h6" style={{ fontWeight: "bold" }}>Results</Typography>
                   </Grid>
                   <Grid item>
-                    Correlation Score (price and sentiment): 0.803
+                    Correlation Score (price and sentiment):  {Math.round(corr * 100) / 100}
                   </Grid>
                   <Grid item container style={{ direction: "column" }}>
                     <Grid item>
-                      Yesterday Price: $13
+                      Yesterday Price: ${Math.round(ystdPrice * 100) / 100}
                     </Grid>
                     <Grid item style={{ paddingLeft: 5 }}>
                       |
                     </Grid>
                     <Grid item style={{ paddingLeft: 5 }}>
-                      Today Price: $14
+                      Predicted Price: ${Math.round(todayPrice * 100) / 100}
                     </Grid>
                   </Grid>
 
                   <Grid item container style={{ direction: "column" }}>
-                    <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Predicted price greater than yesterday price</Typography>
+                    {ystdPrice < todayPrice ?
+                      <> <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Predicted price greater than yesterday price</Typography> </> :
+                      todayPrice == ystdPrice ?
+                        <> <CheckIcon style={{ color: "#ffa733" }} /><Typography style={{ fontWeight: "bold", color: "#ffa733", paddingLeft: 5 }}>Predicted price same as yesterday price</Typography></> :
+                        <> <ClearIcon style={{ color: "red" }} /><Typography style={{ fontWeight: "bold", color: "red", paddingLeft: 5 }}>Predicted price lower than yesterday price</Typography></>
+                    }
                   </Grid>
                   <Grid item container style={{ direction: "column" }}>
-                    <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>High correlation score</Typography>
+                    {corr > 0.8 || corr < -0.8 ?
+                      <><CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>High correlation score</Typography></> :
+                      <><ClearIcon style={{ color: "red" }} /><Typography style={{ fontWeight: "bold", color: "red", paddingLeft: 5 }}>Low correlation score</Typography></>}
                   </Grid>
                   {/* <Grid item container style={{ direction: "column" }}>
                     <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Sentiment score follows price trend</Typography>
                   </Grid> */}
                   <Grid item>
-                    <Typography style={{ fontWeight: "bold" }}>Confidence Score: 80%</Typography>
+                    <Typography style={{ fontWeight: "bold" }}>RMSE Score: {Math.round(error * 100) / 100}</Typography>
                   </Grid>
                   <Grid item>
-                    <Typography style={{ fontWeight: "bold", color: "green" }}>Overall Decision: BUY</Typography>
+                    <Typography style={{ fontWeight: "bold", color: decision.toLowerCase() == "buy" ? "green" : decision.toLowerCase() == "sell" ? "red" : decision.toLowerCase() == "hold" ? "#ffa733" : "black" }}>Overall Decision: {decision}</Typography>
                   </Grid>
                   {/* <Grid item>
                     <div style={{ height: 150 }}>
@@ -526,11 +529,12 @@ function DashboardContent() {
                   <Typography style={{ fontWeight: "bold", color: "white", paddingBottom: 5 }}>Overall Sentiment</Typography>
                   <GaugeChart
                     hideText={true}
-                    percent={0.78}
-                    colors={['#EA4228', '#F5CD19', '#5BE12C']}
+                    percent={sentimentScore < 0 ? -sentimentScore / 2 : sentimentScore}
+                    colors={['#EA4228', '#ffa733', '#5BE12C']}
                   />
                   {/* <Typography variant="h5" style={{ color: "white" }}> 0.78 </Typography> */}
-                  <Typography variant='h6' style={{ color: "white", fontWeight: "bold" }}> Positive </Typography>
+                  <Typography variant='h6' style={{ color: "white", fontWeight: "bold" }}> {sentimentScore > 0 ? "Positive" : sentimentScore < 0 ? "Negative" : "Neutral"} </Typography>
+                  <Typography variant='h6' style={{ color: "white" }}> {Math.round(sentimentScore * 100) / 100} </Typography>
                 </Paper>
               </Grid>
 
