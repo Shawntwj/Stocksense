@@ -11,6 +11,7 @@ from flask import jsonify
 from flask_cors import CORS
 import pandas as pd
 import statistics
+from collections import Counter
 
 # libraries for Stocktwits
 import requests
@@ -96,11 +97,17 @@ def mainFunction(source, symbol, senti_type, ml_type):
 
     decision = decision_tree(sentiment, correlation, todayPredict, ytdClose)
 
-    return jsonify({"decision":decision, "error":MSE_error, "score": sentiment, "data":data})
+    # wordcloud
+    words_li = []
+    for obj in data:
+        words_li += obj["content"].split()
+    dic = Counter(words_li)
+    # most_occur = dic.most_common(5)
+    words = []
+    for [k,v] in dic.items():
+        words.append({"text":k, "value":v})
 
-@app.route('/')
-def healthCheck():
-    return 200
+    return jsonify({"decision":decision, "error":MSE_error, "score": sentiment, "words":words, "data":data})
 
 
 
