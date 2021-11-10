@@ -49,11 +49,11 @@ from pandas_datareader import data
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
-from fbprophet import Prophet
+# from fbprophet import Prophet
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
-from fastai.tabular.all import *
+from fastai.tabular.all import add_datepart
 from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
@@ -857,8 +857,6 @@ def linear_regression(symbol, df):
     #creating a separate dataset
     new_data = pd.DataFrame(index=range(0,len(df)),columns=['Date', 'Close'])
 
-    
-
     for i in range(0,len(data)):
         new_data['Date'][i] = data['Date'][i]
         new_data['Close'][i] = data['Close'].iloc[i][symbol]
@@ -876,12 +874,11 @@ def linear_regression(symbol, df):
         else:
             new_data.at[i,'mon_fri'] = 0
 
-
     end = int(len(new_data) * 0.8)
 
     train = new_data[:end]
     valid = new_data[end:]
-
+    
     x_train = train.drop('Close', axis=1)
     y_train = train['Close']
     x_valid = valid.drop('Close', axis=1)
@@ -897,7 +894,7 @@ def linear_regression(symbol, df):
     MSE_error = rms
     yst_price = df.iloc[-2]["Close"][symbol]
 
-    tdy = pd.DataFrame([dt.date.today()],columns=["Date"])
+    tdy = pd.DataFrame([datetime.date.today()],columns=["Date"])
 
     add_datepart(tdy, 'Date')
     tdy.drop('Elapsed', axis=1, inplace=True)  #elapsed will be the time stamp
@@ -925,7 +922,6 @@ def linear_regression(symbol, df):
     tdy_preds = model.predict(tdy)
     tdy_preds
     # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
-
     return tdy_preds[0], yst_price, MSE_error, graphData
 
 def predict_price(symbol, ml_model):
