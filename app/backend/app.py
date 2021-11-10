@@ -49,7 +49,7 @@ from pandas_datareader import data as stockdata
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
-# from fbprophet import Prophet
+from fbprophet import Prophet
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
@@ -664,15 +664,12 @@ def prophet(symbol, df):
     # combine test and forecast dataframes
     forecast = pd.DataFrame(forecast,index = test.index,columns=['yhat'])
     result = pd.concat([forecast, test], axis = 1)
-
     #rmse
     forecast_valid = forecast['yhat'][-test_size:]
     MSE_error = mean_squared_error(test['y'], forecast_valid)
 
     # renaming columns in result
     result.rename(columns = {'yhat':'Prediction', 'y': symbol}, inplace = True)
-    result.drop(columns = ['ds'], inplace = True)
-
 
     graphData = []
     for index, row in train.iterrows():
@@ -680,7 +677,7 @@ def prophet(symbol, df):
         graphData.append(dateobj)
 
     for index, row in result.iterrows():
-        dateobj = {"date":str(index.date()), "test":row[symbol], "predicted":row["Prediction"] }
+        dateobj = {"date":row["ds"], "test":row[symbol], "predicted":row["Prediction"] }
         graphData.append(dateobj)
 
 
