@@ -5,7 +5,8 @@ in this folder to install the packages needed
 """
 
 import time
-import datetime
+import datetime as dt
+from datetime import datetime
 from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
@@ -53,7 +54,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
-from fastai.tabular.all import *
+from fastai.tabular.all import add_datepart
 from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
@@ -90,7 +91,9 @@ def mainFunction(source, symbol, senti_type, ml_type):
             senti_key = 'Flair Sentiment'
         else:
             senti_key = senti_type.capitalize()
-        corr_df = pd.read_excel("sentiment_correlation.xlsx")
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        
+        corr_df = pd.read_excel(os.path.join(__location__, "sentiment_correlation.xlsx"))
         platform_corr_df = corr_df[corr_df['Platform']==source]
         row_corr_df = platform_corr_df[platform_corr_df['Ticket']==symbol.upper()]
         corr_series = row_corr_df[senti_key+' Score']
@@ -113,9 +116,11 @@ def mainFunction(source, symbol, senti_type, ml_type):
 
     return jsonify({"decision":decision, "error":str(MSE_error), "todayPredict":str(todayPredict), "ytdClose":str(ytdClose), "score": str(sentiment), "words":words, "data":senti_grouped, "corr": str(correlation), "top10": top10, "graphData": graphData})
 
+
+
 @app.route('/')
 def healthCheck():
-    return 200
+    return "200"
 
 # Stocktwits scraper
 def first_check(symbol):
@@ -126,7 +131,7 @@ def first_check(symbol):
         return True
     return False
 
-# @app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
+@app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
 def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
@@ -136,8 +141,8 @@ def getStocktwits(symbol, senti_type):
         # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
         # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
-        start_date = datetime.datetime.now()
-        end_date = start_date - datetime.timedelta(days=1)
+        start_date = dt.datetime.now()
+        end_date = start_date - dt.timedelta(days=1)
 
         j = 0   # page number
         postid = ''
@@ -163,14 +168,14 @@ def getStocktwits(symbol, senti_type):
                     newdatetime = main_body[i]["created_at"]
                     formatfrom="%Y-%m-%dT%H:%M:%SZ"
                     formatto="%a %d %b %Y, %H:%M:%S GMT"
-                    newdatetime = datetime.datetime.strptime(newdatetime,formatfrom).strftime(formatto)
+                    newdatetime = datetime.strptime(newdatetime,formatfrom).strftime(formatto)
 
                     time = main_body[i]["created_at"]
                     timelist = time.split("T")
 
                     date_created_data = timelist[0]
 
-                    start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
+                    start_date = datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     # if (start_date == end_date):
 
@@ -242,7 +247,7 @@ def getArticleSummary(parsed_news, start_date):
 def getGoogleNewsLinks(symbol, start_date):
     parsed_news = []
 
-    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+    end_date = (start_date - dt.timedelta(days=1)).strftime('%m/%d/%Y')
     start_date = start_date.strftime('%m/%d/%Y')
 
     googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
@@ -276,8 +281,8 @@ def getTwitter(symbol, senti_type):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
-    end_date = datetime.datetime.today()
-    start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    end_date = dt.datetime.today()
+    start_date = (end_date - dt.timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
 
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
@@ -756,7 +761,7 @@ def lstm(symbol, df):
 
 def linear_regression(symbol, df):
     global data
-
+    
     graph = df 
 
     df["Date"] = df.index
@@ -782,7 +787,6 @@ def linear_regression(symbol, df):
     add_datepart(new_data, 'Date')
     new_data.drop('Elapsed', axis=1, inplace=True)  #elapsed will be the time stamp
 
-
     new_data['mon_fri'] = 0
     new_data
     for i in range(0,len(new_data)):
@@ -790,6 +794,7 @@ def linear_regression(symbol, df):
             new_data.at[i,'mon_fri'] = 1
         else:
             new_data.at[i,'mon_fri'] = 0
+
 
     end = int(len(new_data) * 0.8)
 
@@ -808,6 +813,7 @@ def linear_regression(symbol, df):
     preds = model.predict(x_valid)
     rms=np.sqrt(np.mean(np.power((np.array(y_valid)-np.array(preds)),2)))
 
+    MSE_error = rms
     yst_price = panel_data.iloc[-2]["Close"][symbol]
 
     tdy = pd.DataFrame([datetime.date.today()],columns=["Date"])
@@ -826,7 +832,7 @@ def linear_regression(symbol, df):
     for index, row in train.iterrows():
         dateobj = {"date":str(row[0].date()), "train":row[1] }
         graphData.append(dateobj)
-        
+
     i = 0
     for index, row in test.iterrows():
 
@@ -836,15 +842,15 @@ def linear_regression(symbol, df):
 
     tdy_preds = model.predict(tdy)
     tdy_preds
-    json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
+    # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
 
-    return tdy_preds, yst_price, rms, graphData
+    return tdy_preds, yst_price, MSE_error, graphData
 
 def predict_price(symbol, ml_model):
     start_date = '2019-01-01'
 
-    today = datetime.date.today()
-    yesterday = today - datetime.timedelta(days=1)
+    today = dt.date.today()
+    yesterday = today - dt.timedelta(days=1)
     end_date = yesterday
 
     panel_data = data.DataReader([symbol], 'yahoo', start_date, end_date)

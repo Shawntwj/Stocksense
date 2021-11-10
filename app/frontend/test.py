@@ -111,6 +111,7 @@ def linear_regression(symbol, df):
     json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
 
     return tdy_preds, yst_price, rms, graphData
+
 start_date = '2019-01-01'
 
 today = datetime.date.today()
