@@ -90,7 +90,9 @@ def mainFunction(source, symbol, senti_type, ml_type):
             senti_key = 'Flair Sentiment'
         else:
             senti_key = senti_type.capitalize()
-        corr_df = pd.read_excel("sentiment_correlation.xlsx")
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+        corr_df = pd.read_excel(os.path.join(__location__, "sentiment_correlation.xlsx"))
         platform_corr_df = corr_df[corr_df['Platform']==source]
         row_corr_df = platform_corr_df[platform_corr_df['Ticket']==symbol.upper()]
         corr_series = row_corr_df[senti_key+' Score']

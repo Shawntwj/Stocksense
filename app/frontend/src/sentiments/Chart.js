@@ -114,7 +114,7 @@ export default function Chart({ data, type }) {
                     >
                         <CartesianGrid stroke="#f5f5f5" />
                         <XAxis textAnchor="end"
-                            tick={{ angle: -45 }} minTickGap={-200} dataKey="date" tickFormatter={timeStr => moment(timeStr).format("Do MMM, hA")} interval={0} allowDataOverflow={true} height={100} />
+                            tick={{ angle: -45 }} minTickGap={-200} dataKey="date" tickFormatter={timeStr => moment(timeStr).format("Do MMM, hA")} interval={100} allowDataOverflow={true} height={100} />
                         <YAxis domain={['auto', 'auto']} />
                         <Tooltip />
                         <Legend />
