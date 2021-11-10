@@ -347,7 +347,7 @@ def reddit_sentiment_post(search, start, end, subreddit):
                     # 'url':post.url,
                     # 'num_comments':post.num_comments,
                     'content':post.selftext,
-                    'created':datetime.datetime.fromtimestamp(post.created)
+                    'datetime':datetime.datetime.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
         except:
             continue # Continue loop if error is found
@@ -424,8 +424,8 @@ def flair_sentiment(data):
     for row in data:
         s = flair.data.Sentence(row["content"])
         flair_sentiment.predict(s)
-        if len(s.labels) == 0 | len(str(s.labels[0])) == 0:
-            sentiment = 0
+        if len(s.labels) == 0:
+            sentiment = "NEUTRAL"
             score = 0
         else:
             sentiment = str(s.labels[0]).split()[0]
@@ -500,6 +500,7 @@ def sentiment_score(dct, senti_type):
         df = pd.DataFrame({'sentiment':sentiment, 'score':score})
 
         for index, row in df.iterrows():
+
             if row['sentiment'].lower() == 'negative':
                 df.at[index,"score"] = 0 - row['score']
             else:
@@ -551,6 +552,7 @@ def top_10(data):
         return []
     else:
         df = pd.DataFrame(data)
+        df['score'] = df['score'].astype(float)
         result = df.sort_values(by=['score'], ascending=False)
         top10 = result.to_dict("records")[:10]
         return top10

@@ -242,8 +242,11 @@ function DashboardContent() {
                         <MenuItem key={"twitter"} value="twitter">
                           Twitter
                         </MenuItem>
-                        <MenuItem key={"reddit"} value="reddit">
-                          Reddit
+                        <MenuItem key={"reddit:comment"} value="reddit:comment">
+                          Reddit Comment
+                        </MenuItem>
+                        <MenuItem key={"reddit:post"} value="reddit:post">
+                          Reddit Post
                         </MenuItem>
                         <MenuItem
                           key={"stocktwits"} value="stocktwits">
