@@ -10,6 +10,7 @@ from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
 import pandas as pd
+import numpy as np
 import statistics
 from collections import Counter
 
@@ -36,7 +37,7 @@ from nltk import word_tokenize
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
-import numpy as np
+nltk.download('stopwords')
 
 # libraries for sentiment analysis
 import flair
@@ -375,12 +376,14 @@ def getRedditPosts(symbol, senti_type):
 
 # Clean
 def getCleanedContent(data):
+    stopWords = set(stopwords.words('english'))
     cleaned_data = []
     for item in data:
         item["content"] = item["content"].lower()
         item["content"] = remove_hashtag_mentions_urls(item["content"])
         item["content"] = remove_emoji(item["content"])
         item["content"] = tokenization(item["content"])
+        item["content"] = remove_stop_words(item["content"], stopWords)
         item["content"] = ' '.join(item["content"])
         cleaned_data.append(item)
     return cleaned_data
@@ -403,6 +406,13 @@ def tokenization(text):
     word_tokenizer = RegexpTokenizer(r'[-\'\w]+')
     tokenized_text = word_tokenizer.tokenize(text)
     return tokenized_text
+
+def remove_stop_words(tokenized_text, stopWords):
+    wordlist_wo_stopwords=[]
+    for w in tokenized_text:
+        if w not in stopWords:
+            wordlist_wo_stopwords.append(w)
+    return wordlist_wo_stopwords
 
 # Sentiment
 def flair_sentiment(data):
@@ -607,11 +617,9 @@ def arima(symbol, df):
     # calculating rmse
     MSE_error = mean_squared_error(test, model_pred)
 
-    graphData = [] 
+    graphData = []
     for index, row in train_data['Close'].iterrows():
-        
         dateobj = {"date":str(index.date()), "train":row[0] }
-
         graphData.append(dateobj)
 
     i = 0
@@ -661,7 +669,7 @@ def prophet(symbol, df):
     result.drop(columns = ['ds'], inplace = True)
 
 
-    graphData = [] 
+    graphData = []
     for index, row in train.iterrows():
         dateobj = {"date":str(row[0].date()), "train":row[1] }
         graphData.append(dateobj)
@@ -670,7 +678,7 @@ def prophet(symbol, df):
         dateobj = {"date":str(index.date()), "test":row[symbol], "predicted":row["Prediction"] }
         graphData.append(dateobj)
 
-        
+
     return today_prediction, test['y'].to_list()[-1], MSE_error, graphData
 
 def lstm(symbol, df):
@@ -726,7 +734,7 @@ def lstm(symbol, df):
     today_prediction = closing_price[-1]
     closing_price = closing_price[:-1]
 
-    graphData = [] 
+    graphData = []
     for index, row in train.iterrows():
         dateobj = {"date":str(row[0].date()), "train":row[1] }
 
