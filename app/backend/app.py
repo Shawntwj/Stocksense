@@ -81,7 +81,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
     top10 = response["top10"]
 
     # extract correlation score from exported excel
-    if source == 'twitter' and symbol == 'msft':
+    if (source == 'twitter' and symbol == 'msft') or symbol == "ater":
         correlation = 0
     else:
         if senti_type == 'flair':
@@ -418,8 +418,8 @@ def flair_sentiment(data):
             sentiment = str(s.labels[0]).split()[0]
             score = str(s.labels[0]).split()[1][1:-1]
 
-        row["sentiment"] = sentiment
-        row["score"] = score
+        row['sentiment'] = sentiment
+        row['score'] = score
     return data
 
 def vader_sentiment(data):
@@ -496,45 +496,51 @@ def sentiment_score(dct, senti_type):
 
 # Average Sentiment by datetime
 def sentiment_by_datetime(data):
-	df = pd.DataFrame(data)
-	df.datetime = pd.to_datetime(df.datetime)
-	df['score'] = df['score'].astype(float)
-	df2 = df.set_index('datetime').groupby([pd.Grouper(freq='H'), 'sentiment']).mean()
-	df_dict = df2.to_dict()
-	sentiment_group = {}
+    if len(data) == 0:
+        return []
+    else:
+        df = pd.DataFrame(data)
+        df.datetime = pd.to_datetime(df.datetime)
+        df['score'] = df['score'].astype(float)
+        df2 = df.set_index('datetime').groupby([pd.Grouper(freq='H'), 'sentiment']).mean()
+        df_dict = df2.to_dict()
+        sentiment_group = {}
 
-	for k, v in df_dict["score"].items():
-		date2 = pd.to_datetime(k[0])
-		inner = {}
-		if date2 in sentiment_group:
-			inner = sentiment_group[date2]
-			inner[k[1]] = v
-			sentiment_group[date2] = inner
-		else:
-			inner[k[1]] = v
-			sentiment_group[date2] = inner
+        for k, v in df_dict["score"].items():
+            date2 = pd.to_datetime(k[0])
+            inner = {}
+            if date2 in sentiment_group:
+                inner = sentiment_group[date2]
+                inner[k[1]] = v
+                sentiment_group[date2] = inner
+            else:
+                inner[k[1]] = v
+                sentiment_group[date2] = inner
 
-	new_group = []
-	for key, val in sentiment_group.items():
-		positive = 0.0
-		negative = 0.0
-		if 'POSITIVE' in val.keys():
-			positive = val["POSITIVE"]
-		if 'NEGATIVE' in val.keys():
-			negative = val["NEGATIVE"]
-		new_group.append({
-			"date": key,
-			"negative": str(negative),
-			"positive": str(positive)
-		})
+        new_group = []
+        for key, val in sentiment_group.items():
+            positive = 0.0
+            negative = 0.0
+            if 'POSITIVE' in val.keys():
+                positive = val["POSITIVE"]
+            if 'NEGATIVE' in val.keys():
+                negative = val["NEGATIVE"]
+            new_group.append({
+                "date": key,
+                "negative": str(negative),
+                "positive": str(positive)
+            })
 
-	return new_group
+        return new_group
 
 def top_10(data):
-	df = pd.DataFrame(data)
-	result = df.sort_values(by=['score'], ascending=False)
-	top10 = result.to_dict("records")[:10]
-	return top10
+    if len(data) == 0:
+        return []
+    else:
+        df = pd.DataFrame(data)
+        result = df.sort_values(by=['score'], ascending=False)
+        top10 = result.to_dict("records")[:10]
+        return top10
 
 # ML models
 def autoArimaML(symbol, df):
@@ -799,5 +805,5 @@ def decision_tree(sentiment, correlation, predicted_price, yesterday_price):
         return "Hold"
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    # app.debug = True
+    app.run(debug = True, host='0.0.0.0', port=8000)
