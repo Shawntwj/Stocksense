@@ -114,6 +114,7 @@ function DashboardContent() {
   const [words, setWords] = React.useState([])
   const [sentimentGraph, setSentimentGraph] = React.useState([])
   const [table, setTable] = React.useState([])
+  const [graphData, setGraphData] = React.useState([])
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
@@ -129,39 +130,6 @@ function DashboardContent() {
   const handleStockChange = (event) => {
     setStock(event.target.value);
   };
-
-  const graphData2 = [
-    {
-      date: "20/10/2021",
-      prediction: 10,
-      actual: 12
-    },
-    {
-      date: '21/10/2021',
-      prediction: 11,
-      actual: 10
-    },
-    {
-      date: '22/10/2021',
-      prediction: 12,
-      actual: 11
-    },
-    {
-      date: '23/10/2021',
-      prediction: 14,
-      actual: 16
-    },
-    {
-      date: '24/10/2021',
-      prediction: 15,
-      actual: 16
-    },
-    {
-      date: '25/10/2021',
-      prediction: 13,
-      actual: 14
-    },
-  ];
 
 
   const handleClick = async () => {
@@ -183,6 +151,7 @@ function DashboardContent() {
       setWords(sentiment.words)
       setSentimentGraph(sentiment.data)
       setTable(sentiment.top10)
+      setGraphData(sentiment.graphData)
     }
     console.log(res)
     return res
@@ -358,6 +327,9 @@ function DashboardContent() {
                         <MenuItem key={"LSTM"} value="LSTM">
                           LSTM
                         </MenuItem>
+                        <MenuItem key={"lr"} value="lr">
+                          Linear Regression
+                        </MenuItem>
                       </TextField>
                     </Grid>
                   </div>
@@ -461,7 +433,7 @@ function DashboardContent() {
                 >
                   <Typography variant="h6" style={{ fontWeight: "bold" }}>Word Cloud</Typography>
 
-                  <div style={{ height: 200, width:"100%" }}>
+                  <div style={{ height: 200, width: "100%" }}>
                     <ReactWordcloud words={words} />
                   </div>
                 </Paper>
@@ -514,7 +486,7 @@ function DashboardContent() {
                   }}
                 >
                   <Typography style={{ fontWeight: "bold" }}>Train, Test and Predicted Price</Typography>
-                  <Chart data={graphData2} />
+                  <Chart data={graphData} />
                 </Paper>
               </Grid>
 
