@@ -95,7 +95,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
         correlation = corr_series.values[0]
 
     # ML models
-    todayPredict, ytdClose, MSE_error = predict_price(symbol, ml_type)
+    todayPredict, ytdClose, MSE_error, graphData = predict_price(symbol, ml_type)
 
     decision = decision_tree(sentiment, correlation, todayPredict, ytdClose)
 
@@ -109,7 +109,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
     for [k,v] in dic.items():
         words.append({"text":k, "value":v})
 
-    return jsonify({"decision":decision, "error":str(MSE_error), "todayPredict":str(todayPredict), "ytdClose":str(ytdClose), "score": str(sentiment), "words":words, "data":senti_grouped, "corr": str(correlation), "top10": top10})
+    return jsonify({"decision":decision, "error":str(MSE_error), "todayPredict":str(todayPredict), "ytdClose":str(ytdClose), "score": str(sentiment), "words":words, "data":senti_grouped, "corr": str(correlation), "top10": top10, "graphData": graphData})
 
 @app.route('/')
 def healthCheck():
@@ -620,7 +620,7 @@ def arima(symbol, df):
         i += 1
 
 
-    return model_predictions[-1], test_data[-1], MSE_error
+    return model_predictions[-1], test_data[-1], MSE_error, graphData
 
 def prophet(symbol, df):
     close = df['Close']
@@ -662,7 +662,7 @@ def prophet(symbol, df):
 
     graphData = [] 
     for index, row in train.iterrows():
-        ddateobj = {"date":str(row[0].date()), "train":row[1] }
+        dateobj = {"date":str(row[0].date()), "train":row[1] }
         graphData.append(dateobj)
 
     for index, row in result.iterrows():
