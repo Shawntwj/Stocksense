@@ -45,7 +45,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from happytransformer import HappyTextClassification
 
 # libraries for prediction
-from pandas_datareader import data
+from pandas_datareader import data as stockdata
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
@@ -55,6 +55,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from fastai.tabular.all import add_datepart
 from sklearn.linear_model import LinearRegression
+
 
 app = Flask(__name__)
 CORS(app)
@@ -933,7 +934,7 @@ def predict_price(symbol, ml_model):
     yesterday = today - datetime.timedelta(days=1)
     end_date = yesterday
 
-    panel_data = data.DataReader([symbol], 'yahoo', start_date, end_date)
+    panel_data = stockdata.DataReader([symbol], 'yahoo', start_date, end_date)
 
     # ml model: auto arima, arima, prohphet, linear regression, LSTM
     if ml_model == 'autoarima':
