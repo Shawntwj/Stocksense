@@ -1,14 +1,64 @@
-import datetime
-import numpy as np
+# import datetime
+# import numpy as np
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from pandas_datareader import data
+# from sklearn.metrics import mean_squared_error
+# from fastai.tabular.all import *
+# import datetime
+# from sklearn.linear_model import LinearRegression
+
+import time
+import datetime 
+from flask import Flask
+from flask import jsonify
+from flask_cors import CORS
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
+import statistics
+from collections import Counter
+
+# libraries for Stocktwits
+import requests
+import json
+import os
+
+# libraries for News
+from GoogleNews import GoogleNews
+from newspaper import Article
+from newspaper import Config
+
+# libraries for Twitter
+import snscrape.modules.twitter as sntwitter
+
+# libraries for Reddit
+from psaw import PushshiftAPI
+
+# libraries for clean
+# import re
+# import nltk
+# from nltk import word_tokenize
+# from nltk.tokenize import RegexpTokenizer
+# from nltk.stem import WordNetLemmatizer
+# from nltk.corpus import stopwords
+# nltk.download('stopwords')
+
+# libraries for sentiment analysis
+import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from happytransformer import HappyTextClassification
+
+# libraries for prediction
 from pandas_datareader import data
 from sklearn.metrics import mean_squared_error
-from fastai.tabular.all import *
-import datetime
+from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
+# from fbprophet import Prophet
+from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, LSTM
+from fastai.tabular.all import add_datepart
 from sklearn.linear_model import LinearRegression
-
-
 
 def linear_regression(symbol, df):
     global data
@@ -122,3 +172,52 @@ panel_data = data.DataReader(["AAPL"], 'yahoo', start_date, end_date)
 
 test = linear_regression("AAPL",panel_data)
 print(test)
+# ---------------------------------------------------------
+# def arima(symbol, df):
+#     # preprocessing data
+#     train_data, test_data = df[0:int(len(df)*0.8)], df[int(len(df)*0.8):]
+#     graph_data = test_data['Close'] 
+#     training_data = train_data['Close'].values
+#     test_data = test_data['Close'].values
+#     history = [x for x in training_data]
+#     model_predictions = []
+#     N_test_observations = len(test_data)
+#     yhat = 0
+#     # train model
+#     for time_point in range(N_test_observations):
+#         try:
+#             model = ARIMA(history, order=(4,1,0))
+#             model_fit = model.fit()
+#             output = model_fit.predict()
+#             yhat = output[-1]
+#             true_test_value = test_data[time_point]
+#             history.append(true_test_value)
+#             model_predictions.append(yhat)
+#         except Exception as e:
+#             print(e)
+#             return 0, test_data[-1], 0
+
+#     model_pred = pd.DataFrame(model_predictions,columns=['Prediction'])
+#     test = pd.DataFrame(test_data, columns = [symbol])
+
+#     # calculating rmse
+#     MSE_error = mean_squared_error(test, model_pred)
+
+#     graphData = []
+#     for index, row in train_data['Close'].iterrows():
+#         dateobj = {"date":str(index.date()), "train":row[0] }
+#         graphData.append(dateobj)
+
+#     i = 0
+#     for index, row in graph_data.iterrows():
+#         dateobj = {"date":str(index.date()), "test":row[0], "predicted":model_predictions[i] }
+#         graphData.append(dateobj)
+#         i += 1
+
+
+#     return model_predictions[-1], test_data[-1], MSE_error, graphData
+
+
+# test = arima("AAPL",panel_data)
+# print(test)
+

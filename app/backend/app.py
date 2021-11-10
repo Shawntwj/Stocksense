@@ -141,7 +141,7 @@ def getStocktwits(symbol, senti_type):
         # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
         # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
-        start_date = dt.datetime.now()
+        start_date = datetime.now()
         end_date = start_date - dt.timedelta(days=1)
 
         j = 0   # page number
@@ -247,7 +247,7 @@ def getArticleSummary(parsed_news, start_date):
 def getGoogleNewsLinks(symbol, start_date):
     parsed_news = []
 
-    end_date = (start_date - dt.timedelta(days=1)).strftime('%m/%d/%Y')
+    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
     start_date = start_date.strftime('%m/%d/%Y')
 
     googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
@@ -281,8 +281,8 @@ def getTwitter(symbol, senti_type):
     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
     """
     data = []
-    end_date = dt.datetime.today()
-    start_date = (end_date - dt.timedelta(days=1)).strftime('%Y-%m-%d')
+    end_date = datetime.datetime.today()
+    start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
 
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
@@ -758,7 +758,7 @@ def lstm(symbol, df):
     test.drop(columns = ['Date'], inplace = True)
 
     return today_prediction[0], closing_price[-1][0], MSE_error, graphData
-
+# ---------------------------------------------------------------------------------------------------
 def linear_regression(symbol, df):
     global data
     
@@ -814,9 +814,9 @@ def linear_regression(symbol, df):
     rms=np.sqrt(np.mean(np.power((np.array(y_valid)-np.array(preds)),2)))
 
     MSE_error = rms
-    yst_price = panel_data.iloc[-2]["Close"][symbol]
+    yst_price = df.iloc[-2]["Close"][symbol]
 
-    tdy = pd.DataFrame([datetime.date.today()],columns=["Date"])
+    tdy = pd.DataFrame([dt.date.today()],columns=["Date"])
 
     add_datepart(tdy, 'Date')
     tdy.drop('Elapsed', axis=1, inplace=True)  #elapsed will be the time stamp
@@ -828,6 +828,7 @@ def linear_regression(symbol, df):
 
     train = graph[:end]
     test = graph[end:]
+    
     graphData = []
     for index, row in train.iterrows():
         dateobj = {"date":str(row[0].date()), "train":row[1] }
@@ -844,7 +845,8 @@ def linear_regression(symbol, df):
     tdy_preds
     # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
 
-    return tdy_preds, yst_price, MSE_error, graphData
+    
+    return tdy_preds[0], yst_price, MSE_error, graphData
 
 def predict_price(symbol, ml_model):
     start_date = '2019-01-01'
@@ -864,7 +866,7 @@ def predict_price(symbol, ml_model):
         return prophet(symbol, panel_data)
     elif ml_model == 'LSTM':
         return lstm(symbol, panel_data)
-    elif ml_model == 'Linear regression':
+    else:
         return linear_regression(symbol, panel_data)
 
     
