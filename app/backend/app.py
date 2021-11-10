@@ -557,11 +557,23 @@ def autoArimaML(symbol, df):
     ytdClose = test[symbol][-1]
     MSE_error = mean_squared_error(test, forecast)
 
-    return todayPredict, ytdClose, MSE_error
+    graphData = [] 
+    for index, row in train.iterrows():
+        dateobj = {"date":str(index.date()), "train":(row[0]) }
+        graphData.append(dateobj)
+
+    i = 0
+    for index, row in test.iterrows():
+        dateobj = {"date":str(index.date()), "test":(row[0]), "predicted":forecast[i] }
+        graphData.append(dateobj)
+        i += 1
+        
+    return todayPredict, ytdClose, MSE_error, graphData
 
 def arima(symbol, df):
     # preprocessing data
     train_data, test_data = df[0:int(len(df)*0.8)], df[int(len(df)*0.8):]
+    graph_data = test_data['Close'] 
     training_data = train_data['Close'].values
     test_data = test_data['Close'].values
     history = [x for x in training_data]
@@ -587,6 +599,20 @@ def arima(symbol, df):
 
     # calculating rmse
     MSE_error = mean_squared_error(test, model_pred)
+
+    graphData = [] 
+    for index, row in train_data['Close'].iterrows():
+        
+        dateobj = {"date":str(index.date()), "train":row[0] }
+
+        graphData.append(dateobj)
+
+    i = 0
+    for index, row in graph_data.iterrows():
+        dateobj = {"date":str(index.date()), "test":row[0], "predicted":model_predictions[i] }
+        graphData.append(dateobj)
+        i += 1
+
 
     return model_predictions[-1], test_data[-1], MSE_error
 
@@ -627,7 +653,18 @@ def prophet(symbol, df):
     result.rename(columns = {'yhat':'Prediction', 'y': symbol}, inplace = True)
     result.drop(columns = ['ds'], inplace = True)
 
-    return today_prediction, test['y'].to_list()[-1], MSE_error
+
+    graphData = [] 
+    for index, row in train.iterrows():
+        ddateobj = {"date":str(row[0].date()), "train":row[1] }
+        graphData.append(dateobj)
+
+    for index, row in result.iterrows():
+        dateobj = {"date":str(index.date()), "test":row[symbol], "predicted":row["Prediction"] }
+        graphData.append(dateobj)
+
+        
+    return today_prediction, test['y'].to_list()[-1], MSE_error, graphData
 
 def lstm(symbol, df):
     close = df['Close']
@@ -682,13 +719,25 @@ def lstm(symbol, df):
     today_prediction = closing_price[-1]
     closing_price = closing_price[:-1]
 
+    graphData = [] 
+    for index, row in train.iterrows():
+        dateobj = {"date":str(row[0].date()), "train":row[1] }
+
+        graphData.append(dateobj)
+    i = 0
+    for index, row in test.iterrows():
+        dateobj = {"date":str(row[0].date()), "test":row[1], "predicted":closing_price[i] }
+        graphData.append(dateobj)
+        i += 1
+     
+
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
 
     test['Predictions'] = closing_price
     test.drop(columns = ['Date'], inplace = True)
 
-    return today_prediction[0], closing_price[-1][0], MSE_error
+    return today_prediction[0], closing_price[-1][0], MSE_error, graphData
 
 def predict_price(symbol, ml_model):
     start_date = '2019-01-01'
@@ -708,6 +757,9 @@ def predict_price(symbol, ml_model):
         return prophet(symbol, panel_data)
     elif ml_model == 'LSTM':
         return lstm(symbol, panel_data)
+
+
+    
 
 def decision_tree(sentiment, correlation, predicted_price, yesterday_price):
     """
