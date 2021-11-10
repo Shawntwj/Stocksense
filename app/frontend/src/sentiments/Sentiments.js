@@ -172,7 +172,7 @@ function DashboardContent() {
     let response = await fetch(url)
     let res = await response.json()
 
-    let sentiment = res?.sentiment
+    let sentiment = res
     if (sentiment) {
       setCorr(sentiment.corr)
       setDecision(sentiment.decision)
@@ -184,6 +184,7 @@ function DashboardContent() {
       setSentimentGraph(sentiment.data)
       setTable(sentiment.top10)
     }
+    console.log(res)
     return res
   }
   return (
@@ -332,8 +333,8 @@ function DashboardContent() {
                         <MenuItem key={"flair"} value="flair">
                           Flair
                         </MenuItem>
-                        <MenuItem key={"finvert"} value="finvert">
-                          Finvert
+                        <MenuItem key={"finbert"} value="finbert">
+                          Finbert
                         </MenuItem>
                       </TextField>
                     </Grid>
@@ -420,10 +421,10 @@ function DashboardContent() {
 
                   <Grid item container style={{ direction: "column" }}>
                     {ystdPrice < todayPrice ?
-                      <> <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Predicted price greater than yesterday price</Typography> </> :
+                      <> <CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>Predicted price {">"} yesterday price</Typography> </> :
                       todayPrice == ystdPrice ?
-                        <> <CheckIcon style={{ color: "#ffa733" }} /><Typography style={{ fontWeight: "bold", color: "#ffa733", paddingLeft: 5 }}>Predicted price same as yesterday price</Typography></> :
-                        <> <ClearIcon style={{ color: "red" }} /><Typography style={{ fontWeight: "bold", color: "red", paddingLeft: 5 }}>Predicted price lower than yesterday price</Typography></>
+                        <> <CheckIcon style={{ color: "#ffa733" }} /><Typography style={{ fontWeight: "bold", color: "#ffa733", paddingLeft: 5 }}>Predicted price {"="} yesterday price</Typography></> :
+                        <> <ClearIcon style={{ color: "red" }} /><Typography style={{ fontWeight: "bold", color: "red", paddingLeft: 5 }}>Predicted price {"<"} yesterday price</Typography></>
                     }
                   </Grid>
                   <Grid item container style={{ direction: "column" }}>
