@@ -113,6 +113,8 @@ function DashboardContent() {
   const [error, setError] = React.useState("");
   const [words, setWords] = React.useState([])
   const [sentimentGraph, setSentimentGraph] = React.useState([])
+  console.log(sentimentGraph)
+  console.log("test")
   const [table, setTable] = React.useState([])
   const [graphData, setGraphData] = React.useState([])
   const handleModelChange = (event) => {
@@ -403,7 +405,7 @@ function DashboardContent() {
                     }
                   </Grid>
                   <Grid item container style={{ direction: "column" }}>
-                    {corr > 0.8 || corr < -0.8 ?
+                    {corr > 0.2 || corr < -0.2 ?
                       <><CheckIcon style={{ color: "green" }} /><Typography style={{ fontWeight: "bold", color: "green", paddingLeft: 5 }}>High correlation score</Typography></> :
                       <><ClearIcon style={{ color: "red" }} /><Typography style={{ fontWeight: "bold", color: "red", paddingLeft: 5 }}>Low correlation score</Typography></>}
                   </Grid>
@@ -474,7 +476,7 @@ function DashboardContent() {
                     height: 400,
                   }}
                 >
-                  <Typography style={{ fontWeight: "bold" }}>Overall Sentiment for 24 Hours</Typography>
+                  <Typography style={{ fontWeight: "bold" }}>Overall Sentiment for Today </Typography>
                   <Chart data={sentimentGraph} type={"price"} />
                 </Paper>
               </Grid>

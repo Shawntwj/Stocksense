@@ -521,7 +521,9 @@ def sentiment_by_datetime(data):
         df_dict = df2.to_dict()
         sentiment_group = {}
 
+        
         for k, v in df_dict["score"].items():
+            
             date2 = pd.to_datetime(k[0])
             inner = {}
             if date2 in sentiment_group:
@@ -534,12 +536,43 @@ def sentiment_by_datetime(data):
 
         new_group = []
         for key, val in sentiment_group.items():
+            # print(key)
+            # print(val)
             positive = 0.0
             negative = 0.0
             if 'POSITIVE' in val.keys():
                 positive = val["POSITIVE"]
             if 'NEGATIVE' in val.keys():
                 negative = val["NEGATIVE"]
+                
+            if 'pos' in val.keys():
+                positive = val["pos"]
+            if 'neg' in val.keys():
+                negative = val["neg"]
+                
+            switch = 0
+            if 'neu' in val.keys():
+                if switch == 0:
+                    positive = val["neu"]
+                    switch +=1
+                else:
+                    positive = val["neu"]
+                    switch -=1
+                
+                
+            if 'positive' in val.keys():
+                positive = val["positive"]
+            if 'negative' in val.keys():
+                negative = val["negative"]
+                
+            switch = 0
+            if 'neutral' in val.keys():
+                if switch == 0:
+                    positive = val["neutral"]
+                    switch +=1
+                else:
+                    positive = val["neutral"]
+                    switch -=1
             new_group.append({
                 "date": key,
                 "negative": str(negative),
