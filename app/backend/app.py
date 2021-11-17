@@ -667,7 +667,7 @@ def arima(symbol, df):
         i += 1
 
 
-    return model_predictions[-1], test_data[-1], MSE_error, graphData
+    return model_predictions[-1], df['Close'][symbol].to_list()[-1], MSE_error, graphData
 
 def prophet(symbol, df):
     close = df['Close']
