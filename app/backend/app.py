@@ -49,7 +49,7 @@ from pandas_datareader import data as stockdata
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
-from fbprophet import Prophet
+# from fbprophet import Prophet
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
