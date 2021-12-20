@@ -6,6 +6,7 @@ in this folder to install the packages needed
 
 import time
 import datetime
+import random
 from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
@@ -26,6 +27,11 @@ from newspaper import Config
 
 # libraries for Twitter
 import snscrape.modules.twitter as sntwitter
+import twint
+import nest_asyncio
+import datetime as dt
+import os
+nest_asyncio.apply()
 
 # libraries for Reddit
 from psaw import PushshiftAPI
@@ -271,32 +277,72 @@ def getNews(symbol, senti_type):
 
 # Twitter scraper
 # @app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
+# def getTwitter(symbol, senti_type):
+#     """
+#     Using TwitterSearchScraper to scrape data and append tweets to list
+#     - assumes date format to be YYYY-MM-DD
+#     - end date exclusive for twitter
+#     - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
+#     """
+#     data = []
+#     end_date = datetime.datetime.today()
+#     start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+#     end_date = end_date.strftime('%Y-%m-%d')
+
+#     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
+#     for i,tweet in enumerate(items):
+#         # and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5
+#         if len(tweet.content.split())>=5 :
+#             data.append({
+#                 # "username": tweet.user.username,
+#                 "content": tweet.content,
+#                 "datetime": tweet.date,
+#                 # "followers": tweet.user.followersCount,
+#                 # "comments": tweet.replyCount,
+#                 # "shares": tweet.retweetCount,
+#                 # "likes": tweet.likeCount
+#             })
+
+#     return getResult(data, senti_type)
 def getTwitter(symbol, senti_type):
-    """
-    Using TwitterSearchScraper to scrape data and append tweets to list
-    - assumes date format to be YYYY-MM-DD
-    - end date exclusive for twitter
-    - with conditions: min word length = 5, min like = 200, min followers = 50, min retweet = 5
-    """
-    data = []
-    end_date = datetime.datetime.today()
-    start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-    end_date = end_date.strftime('%Y-%m-%d')
 
-    items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
-    for i,tweet in enumerate(items):
-        if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
+    start_date = datetime.datetime.now()
+    start_date = start_date - datetime.timedelta(days=1)
+
+    t = twint.Config()
+    t.Search = symbol
+    # t.Geo = "1.290270,103.851959,15km"
+    t.Since = start_date.strftime('%Y-%m-%d')
+    # t.Until=end_date.strftime('%Y-%m-%d')
+    t.Lang = "en"
+    t.Limit = 400
+    t.Filter_retweets = True
+    t.Custom["tweet"] = ["tweet", "username", "date", "time", "likes_count"]
+    t.Store_object = True
+    t.Filter_retweets = True 
+    t.min_likes = 5
+    twint.run.Search(t)
+    tweets = twint.output.tweets_list
+    
+    data = []   
+    for tweet in tweets:
+        datetimesplit = tweet.datetime.split(" ")[0] + " " + tweet.datetime.split(" ")[1]
+        # formatfrom="%Y-%m-%dT%H:%M:%SZ"
+        # formatto="%a %d %b %Y, %H:%M:%S GMT"
+        # newdatetime = datetime.datetime.strptime(newdatetime,formatfrom).strftime(formatto)
+        newdatetime = datetime.datetime.strptime(datetimesplit, '%Y-%m-%d %H:%M:%S')
+
+        if symbol in tweet.tweet:
+            print(tweet.tweet)
             data.append({
-                # "username": tweet.user.username,
-                "content": tweet.content,
-                "datetime": tweet.date,
-                # "followers": tweet.user.followersCount,
-                # "comments": tweet.replyCount,
-                # "shares": tweet.retweetCount,
-                # "likes": tweet.likeCount
+                "content": tweet.tweet,
+                "datetime": newdatetime,
+                "likes": tweet.likes_count,
+                "username": tweet.username
             })
-
     return getResult(data, senti_type)
+
+
 
 # Reddit scraper
 def reddit_sentiment_comment(search, start, end, subreddit):
@@ -521,9 +567,7 @@ def sentiment_by_datetime(data):
         df_dict = df2.to_dict()
         sentiment_group = {}
 
-        
         for k, v in df_dict["score"].items():
-            
             date2 = pd.to_datetime(k[0])
             inner = {}
             if date2 in sentiment_group:
@@ -535,50 +579,49 @@ def sentiment_by_datetime(data):
                 sentiment_group[date2] = inner
 
         new_group = []
+        switch = 0
         for key, val in sentiment_group.items():
             # print(key)
             # print(val)
+            
+            # flair
             positive = 0.0
             negative = 0.0
             if 'POSITIVE' in val.keys():
                 positive = val["POSITIVE"]
             if 'NEGATIVE' in val.keys():
-                negative = val["NEGATIVE"]
-                
+                negative = -1 * val["NEGATIVE"]
+            
+            # vader
             if 'pos' in val.keys():
                 positive = val["pos"]
-            if 'neg' in val.keys():
+            if 'neg' in val.keys(): 
                 negative = val["neg"]
-                
-            switch = 0
             if 'neu' in val.keys():
-                if switch == 0:
+                if val["neu"]  > 0:
                     positive = val["neu"]
-                    switch +=1
-                else:
-                    positive = val["neu"]
-                    switch -=1
+                elif val["neu"]  < 0:
+                    negative = val["neu"]
                 
-                
+            # finbert 
             if 'positive' in val.keys():
                 positive = val["positive"]
             if 'negative' in val.keys():
-                negative = val["negative"]
+                negative = -1 * val["negative"]
                 
-            switch = 0
             if 'neutral' in val.keys():
+                switch = random.random()
                 if switch == 0:
                     positive = val["neutral"]
-                    switch +=1
                 else:
-                    positive = val["neutral"]
-                    switch -=1
+                    negative = -1 * val["neutral"]
+
             new_group.append({
                 "date": key,
                 "negative": str(negative),
-                "positive": str(positive)
+                "positive": str(positive) 
             })
-
+            
         return new_group
 
 def top_10(data):
