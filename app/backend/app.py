@@ -219,12 +219,99 @@ def getStocktwits(symbol, senti_type):
         return getResult(data, senti_type)
 
 # News scraper
-def getArticleSummary(parsed_news, start_date):
+# def getArticleSummary(parsed_news, start_date):
+#     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+#     config = Config()
+#     config.browser_user_agent = user_agent
+
+#     data=[]
+#     for ind in parsed_news:
+#         dicti={}
+#         article = Article(ind[1],config=config)
+#         try:
+#             article.download()
+#             article.parse()
+#             article.nlp()
+
+#             # dicti['title']=article.title
+#             dicti['content']=article.text
+#             # dicti['summary']=article.summary
+#             # dicti['link']=ind[1]
+#             if article.publish_date == None:
+#                 dicti['datetime']=start_date
+#             else:
+#                 dicti['datetime']=article.publish_date
+
+#             data.append(dicti)
+#         except:
+#             pass
+
+#     return data
+
+# def getGoogleNewsLinks(symbol, start_date):
+#     parsed_news = []
+
+#     end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
+#     start_date = start_date.strftime('%m/%d/%Y')
+
+#     googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
+#     googlenews.search(symbol)
+
+#     for i in range(2, 20):
+#         googlenews.getpage(i)
+#         result=googlenews.result()
+#         df=pd.DataFrame(result)
+
+#     for ind in df.index:
+#         link = df['link'][ind]
+#         parsed_news.append([symbol, link])
+
+#     return parsed_news
+
+# @app.route('/api/news/<string:symbol>/<string:senti_type>/')
+# def getNews(symbol, senti_type):
+#     start_date = datetime.datetime.now()
+#     parsed_news = getGoogleNewsLinks(symbol, start_date)
+#     data = getArticleSummary(parsed_news, start_date)
+#     return getResult(data, senti_type)
+
+def getNews(symbol, senti_type):
+    parsed_news = []
+    uniquelink = []
+    symbol = symbol
+    today = datetime.datetime.today()
+    start_date = str((today - datetime.timedelta(days=1)).strftime('%m/%d/%Y'))
+    end_date = str((today + datetime.timedelta(days=1)).strftime('%m/%d/%Y'))
+
+    # calling google news library to scrape news
+    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
+    
+    # stock symbol search inserted here
+    googlenews.search(symbol)
+
+    # loop the first 3 pages to get relevant results
+    try:
+        for i in range(2, 4):
+            googlenews.getpage(i)
+            result=googlenews.result()
+            df=pd.DataFrame(result)
+            
+        # if news already added in final result will not be added to the list again
+        for ind in df.index:
+            link = df['link'][ind]
+            if link not in uniquelink:
+                uniquelink.append(link)
+                parsed_news.append([symbol, link])
+    except:
+        parsed_news.append([symbol, link])
+    
+    return getSummary(parsed_news, senti_type)
+
+def getSummary(parsed_news, senti_type):
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
     config = Config()
     config.browser_user_agent = user_agent
-
-    data=[]
+    newslist=[]
     for ind in parsed_news:
         dicti={}
         article = Article(ind[1],config=config)
@@ -232,50 +319,28 @@ def getArticleSummary(parsed_news, start_date):
             article.download()
             article.parse()
             article.nlp()
-
-            # dicti['title']=article.title
-            dicti['content']=article.text
-            # dicti['summary']=article.summary
-            # dicti['link']=ind[1]
+            # dicti['Ticker']=ind[0]
+            # dicti['Title']=article.title
+            # dicti['Article']=article.text
+            dicti['content']=article.summary
+            dicti['link']=ind[1]
             if article.publish_date == None:
-                dicti['datetime']=start_date
+                dicti['datetime'] = date
             else:
-                dicti['datetime']=article.publish_date
-
-            data.append(dicti)
+                date = article.publish_date
+                date = str(date.year) + "-" + str(date.month) + "-" + str(date.day)
+                
+                formatfrom="%Y-%m-%d"
+                formatto="%a %d %b %Y, %H:%M:%S GMT"
+                newdatetime = datetime.datetime.strptime(newdatetime,formatfrom).strftime(formatto)
+                dicti['datetime']= date
+            newslist.append(dicti)
         except:
             pass
+    print(newslist)
+    return getResult(newslist, senti_type)
 
-    return data
-
-def getGoogleNewsLinks(symbol, start_date):
-    parsed_news = []
-
-    end_date = (start_date - datetime.timedelta(days=1)).strftime('%m/%d/%Y')
-    start_date = start_date.strftime('%m/%d/%Y')
-
-    googlenews=GoogleNews(start = end_date, end = start_date) #month/day/year
-    googlenews.search(symbol)
-
-    for i in range(2, 20):
-        googlenews.getpage(i)
-        result=googlenews.result()
-        df=pd.DataFrame(result)
-
-    for ind in df.index:
-        link = df['link'][ind]
-        parsed_news.append([symbol, link])
-
-    return parsed_news
-
-# @app.route('/api/news/<string:symbol>/<string:senti_type>/')
-def getNews(symbol, senti_type):
-    start_date = datetime.datetime.now()
-    parsed_news = getGoogleNewsLinks(symbol, start_date)
-    data = getArticleSummary(parsed_news, start_date)
-    return getResult(data, senti_type)
-
-# Twitter scraper
+# Twitter scraper sntwitter doesnt work because of some scrapping limits from twitter so i changed back to twint
 # @app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
 # def getTwitter(symbol, senti_type):
 #     """
@@ -304,6 +369,9 @@ def getNews(symbol, senti_type):
 #             })
 
 #     return getResult(data, senti_type)
+
+
+
 def getTwitter(symbol, senti_type):
 
     start_date = datetime.datetime.now()
@@ -520,7 +588,10 @@ def getDataSentiment(data, senti_type):
 
 def getResult(data, senti_type):
     cleanedData = getCleanedContent(data)
+    print(cleanedData)
     sentimentData = getDataSentiment(cleanedData, senti_type)
+    print("----")
+    print(sentimentData)
     top10 = top_10(sentimentData)
     score = sentiment_score(sentimentData, senti_type)
     senti_grouped = sentiment_by_datetime(sentimentData)

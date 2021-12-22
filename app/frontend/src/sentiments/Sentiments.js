@@ -139,24 +139,29 @@ function DashboardContent() {
     let date = moment(value).format("YYYY-MM-DD");
     var url = `http://localhost:8000/api/${data}/${stock}/${model}/${ml}`
     console.log(url)
-    let response = await fetch(url)
-    let res = await response.json()
 
-    let sentiment = res
-    if (sentiment) {
-      setCorr(sentiment.corr)
-      setDecision(sentiment.decision)
-      setError(sentiment.error)
-      setSentimentScore(sentiment.score)
-      setYstdPrice(sentiment.ytdClose)
-      setTodayPrice(sentiment.todayPredict)
-      setWords(sentiment.words)
-      setSentimentGraph(sentiment.data)
-      setTable(sentiment.top10)
-      setGraphData(sentiment.graphData)
+    try {
+      let response = await fetch(url)
+      let res = await response.json()
+      let sentiment = res
+      if (sentiment) {
+        setCorr(sentiment.corr)
+        setDecision(sentiment.decision)
+        setError(sentiment.error)
+        setSentimentScore(sentiment.score)
+        setYstdPrice(sentiment.ytdClose)
+        setTodayPrice(sentiment.todayPredict)
+        setWords(sentiment.words)
+        setSentimentGraph(sentiment.data)
+        setTable(sentiment.top10)
+        setGraphData(sentiment.graphData)
+      }
+      console.log(res)
+      return res
+    } catch (error) {
+      console.error(error);
     }
-    console.log(res)
-    return res
+
   }
   return (
     <ThemeProvider theme={mdTheme}>
