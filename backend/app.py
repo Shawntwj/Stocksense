@@ -19,6 +19,15 @@ import snscrape.modules.twitter as sntwitter
 # libraries for Reddit
 from psaw import PushshiftAPI
 
+# libraries for clean
+import re
+import nltk
+from nltk import word_tokenize
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+
 
 app = Flask(__name__)
 CORS(app)
@@ -284,6 +293,10 @@ def getRedditComments(symbol, senti_type):
 # @app.route('/api/reddit:post/<string:symbol>/<string:senti_type>/')
 def getRedditPosts(symbol, senti_type):
     return getReddit("post", symbol, senti_type)
+
+# Clean
+def remove_hashtag_mentions_urls(text):
+    return re.sub(r"(?:\@|\#|https?\://)\S+", "", text)
 
 
 if __name__ == '__main__':
