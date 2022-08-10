@@ -28,6 +28,9 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 
+# libraries for sentiment analysis
+import flair
+
 
 app = Flask(__name__)
 CORS(app)
