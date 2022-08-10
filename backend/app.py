@@ -298,6 +298,24 @@ def getRedditPosts(symbol, senti_type):
 def remove_hashtag_mentions_urls(text):
     return re.sub(r"(?:\@|\#|https?\://)\S+", "", text)
 
+# Sentiment
+def flair_sentiment(data):
+    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
+    if len(data) == 0:
+        return data
+    for row in data:
+        s = flair.data.Sentence(row["content"])
+        flair_sentiment.predict(s)
+        if len(s.labels) == 0:
+            sentiment = "NEUTRAL"
+            score = 0
+        else:
+            sentiment = str(s.labels[0]).split()[0]
+            score = str(s.labels[0]).split()[1][1:-1]
+
+        row['sentiment'] = sentiment
+        row['score'] = score
+    return data
 
 if __name__ == '__main__':
     # app.debug = True
