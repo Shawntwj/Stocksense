@@ -301,6 +301,22 @@ def getRedditPosts(symbol, senti_type):
 def remove_hashtag_mentions_urls(text):
     return re.sub(r"(?:\@|\#|https?\://)\S+", "", text)
 
+def remove_emoji(text):
+    emoji_pattern = re.compile("["
+    u"\U0001F600-\U0001F64F"  # emoticons
+    u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+    u"\U0001F680-\U0001F6FF"  # transport & map symbols
+    u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    u"\U00002702-\U000027B0"
+    u"\U000024C2-\U0001F251"
+    "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', text)
+
+def tokenization(text):
+    word_tokenizer = RegexpTokenizer(r'[-\'\w]+')
+    tokenized_text = word_tokenizer.tokenize(text)
+    return tokenized_text
+
 # Sentiment
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
