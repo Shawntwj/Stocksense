@@ -309,6 +309,11 @@ def remove_emoji(text):
     "]+", flags=re.UNICODE)
     return emoji_pattern.sub(r'', text)
 
+def tokenization(text):
+    word_tokenizer = RegexpTokenizer(r'[-\'\w]+')
+    tokenized_text = word_tokenizer.tokenize(text)
+    return tokenized_text
+
 # Sentiment
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
