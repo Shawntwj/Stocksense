@@ -205,7 +205,8 @@ def getTwitter(symbol, senti_type):
 
     items = sntwitter.TwitterSearchScraper(f"{symbol} since:{start_date} until:{end_date}").get_items()
     for i,tweet in enumerate(items):
-        if len(tweet.content.split())>=5 and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
+        # and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
+        if len(tweet.content.split())>=5:
             data.append({
                 # "username": tweet.user.username,
                 "content": tweet.content,
