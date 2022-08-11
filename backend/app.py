@@ -318,6 +318,13 @@ def tokenization(text):
     tokenized_text = word_tokenizer.tokenize(text)
     return tokenized_text
 
+def remove_stop_words(tokenized_text, stopWords):
+    wordlist_wo_stopwords=[]
+    for w in tokenized_text:
+        if w not in stopWords:
+            wordlist_wo_stopwords.append(w)
+    return wordlist_wo_stopwords
+
 # Sentiment
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
