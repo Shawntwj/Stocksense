@@ -777,6 +777,43 @@ def predict_price(symbol, ml_model):
     else:
         return linear_regression(symbol, panel_data)
 
+def decision_tree(sentiment, correlation, predicted_price, yesterday_price):
+    """
+    sentiment score for 24hrs
+    correlation score
+    predicted price for the day
+    yesterday's price
+    """
+    gate = 0
+    if predicted_price > yesterday_price:
+        gate += 1
+    else:
+        gate -= 1
+    if sentiment >= 0:
+        if correlation >= 0.2:
+            gate += 1
+        if correlation >= 0.4:
+            gate += 2
+        if correlation <= -0.2:
+            gate -= 1
+        if correlation <= -0.4:
+            gate -= 2
+    else:
+        if correlation <= -0.2:
+            gate += 1
+        if correlation <= -0.4:
+            gate += 2
+        if correlation >= 0.2:
+            gate -= 1
+        if correlation >= 0.4:
+            gate -= 2
+    if gate >= 2:
+        return "Buy"
+    elif gate <= -2:
+        return "Sell"
+    else:
+        return "Hold"
+
 if __name__ == '__main__':
     # app.debug = True
     app.run(debug = True, host='0.0.0.0', port=8000)
