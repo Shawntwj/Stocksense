@@ -596,8 +596,8 @@ def lstm(symbol, df):
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
 
-    test['Predictions'] = closing_price
-    test.drop(columns = ['Date'], inplace = True)
+    test.insert(2, "Predictions", closing_price, True)
+    test = test.drop(columns = ['Date'])
 
     return today_prediction[0], closing_price[-1][0], MSE_error, graphData
 
@@ -616,11 +616,11 @@ def linear_regression(symbol, df):
     data = df.sort_index(ascending=True, axis=0)
 
     #creating a separate dataset
-    new_data = pd.DataFrame(index=range(0,len(df)),columns=['Date', 'Close'])
+        new_data = pd.DataFrame(columns=['Date', 'Close'])
 
     for i in range(0,len(data)):
-        new_data['Date'][i] = data['Date'][i]
-        new_data['Close'][i] = data['Close'].iloc[i][symbol]
+        temp_df = pd.DataFrame([[data['Date'][i],data['Close'].iloc[i][symbol] ]], columns=['Date', 'Close'])
+        new_data = new_data.append(temp_df, ignore_index=True)
 
     graph = new_data[["Date","Close"]]
     #create features
