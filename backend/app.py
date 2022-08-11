@@ -337,6 +337,84 @@ def flair_sentiment(data):
         row['score'] = score
     return data
 
+# ML models
+def autoArimaML(symbol, df):
+    close = df['Close']
+
+    # splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(test_size)
+
+    model = auto_arima(train, start_p=1, start_q=1,max_p=6, max_q=3, m=12, seasonal=True, error_action='ignore',suppress_warnings=True)
+    model.fit(train)
+
+    forecast = model.predict(n_periods=test_size)
+
+    todayPredict = forecast[-1]
+    ytdClose = test[symbol][-1]
+    MSE_error = mean_squared_error(test, forecast)
+
+    graphData = [] 
+    for index, row in train.iterrows():
+        dateobj = {"date":str(index.date()), "train":(row[0]) }
+        graphData.append(dateobj)
+
+    i = 0
+    for index, row in test.iterrows():
+        dateobj = {"date":str(index.date()), "test":(row[0]), "predicted":forecast[i] }
+        graphData.append(dateobj)
+        i += 1
+        
+    return todayPredict, ytdClose, MSE_error, graphData
+
+def arima(symbol, df):
+    # preprocessing data
+    train_data, test_data = df[0:int(len(df)*0.8)], df[int(len(df)*0.8):]
+    graph_data = test_data['Close'] 
+    training_data = train_data['Close'].values
+    test_data = test_data['Close'].values
+    history = [x for x in training_data]
+    model_predictions = []
+    N_test_observations = len(test_data)
+    yhat = 0
+    # train model
+    for time_point in range(N_test_observations):
+        try:
+            model = ARIMA(history, order=(4,1,0))
+            model_fit = model.fit()
+            output = model_fit.predict()
+            yhat = output[-1]
+            true_test_value = test_data[time_point]
+            history.append(true_test_value)
+            model_predictions.append(yhat)
+        except Exception as e:
+            print(e)
+            return 0, test_data[-1], 0
+
+    model_pred = pd.DataFrame(model_predictions,columns=['Prediction'])
+    test = pd.DataFrame(test_data, columns = [symbol])
+
+    # calculating rmse
+    MSE_error = mean_squared_error(test, model_pred)
+
+    graphData = []
+    for index, row in train_data['Close'].iterrows():
+        dateobj = {"date":str(index.date()), "train":row[0] }
+        graphData.append(dateobj)
+
+    i = 0
+    for index, row in graph_data.iterrows():
+        dateobj = {"date":str(index.date()), "test":row[0], "predicted":model_predictions[i] }
+        graphData.append(dateobj)
+        i += 1
+
+
+    return model_predictions[-1], df['Close'][symbol].to_list()[-1], MSE_error, graphData
+
 if __name__ == '__main__':
     # app.debug = True
     app.run(debug = True, host='0.0.0.0', port=8000)
