@@ -404,6 +404,16 @@ def getDataSentiment(data, senti_type):
         data = finbert_sentiment(data)
     return data
 
+# Top 10 Sentiment results
+def top_10(data):
+    if len(data) == 0:
+        return []
+    else:
+        df = pd.DataFrame(data)
+        df['score'] = df['score'].astype(float)
+        result = df.sort_values(by=['score'], ascending=False)
+        top10 = result.to_dict("records")[:10]
+        return top10
 
 # Average Sentiment 24 hours
 def sentiment_score(dct, senti_type):
@@ -785,16 +795,6 @@ def linear_regression(symbol, df):
     tdy_preds
     # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
     return tdy_preds[0], yst_price, MSE_error, graphData
-
-def top_10(data):
-    if len(data) == 0:
-        return []
-    else:
-        df = pd.DataFrame(data)
-        df['score'] = df['score'].astype(float)
-        result = df.sort_values(by=['score'], ascending=False)
-        top10 = result.to_dict("records")[:10]
-        return top10
 
 def predict_price(symbol, ml_model):
     start_date = '2019-01-01'
