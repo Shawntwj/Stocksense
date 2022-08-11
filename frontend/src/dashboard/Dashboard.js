@@ -27,7 +27,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit">
-        StockSense
+        5 Guys Stock Dashboard
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -118,7 +118,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              StockSense
+              5 Guys Stock Dashboard
             </Typography>
             {/* <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
