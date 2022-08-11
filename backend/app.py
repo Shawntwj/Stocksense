@@ -434,6 +434,74 @@ def sentiment_score(dct, senti_type):
         return df['score'].mean()
  
 
+# Average Sentiment by datetime
+def sentiment_by_datetime(data):
+    if len(data) == 0:
+        return []
+    else:
+        df = pd.DataFrame(data)
+        df.datetime = pd.to_datetime(df.datetime)
+        df['score'] = df['score'].astype(float)
+        df2 = df.set_index('datetime').groupby([pd.Grouper(freq='H'), 'sentiment']).mean()
+        df_dict = df2.to_dict()
+        sentiment_group = {}
+
+        for k, v in df_dict["score"].items():
+            date2 = pd.to_datetime(k[0])
+            inner = {}
+            if date2 in sentiment_group:
+                inner = sentiment_group[date2]
+                inner[k[1]] = v
+                sentiment_group[date2] = inner
+            else:
+                inner[k[1]] = v
+                sentiment_group[date2] = inner
+
+        new_group = []
+        switch = 0
+        for key, val in sentiment_group.items():
+            # print(key)
+            # print(val)
+            
+            # flair
+            positive = 0.0
+            negative = 0.0
+            if 'POSITIVE' in val.keys():
+                positive = val["POSITIVE"]
+            if 'NEGATIVE' in val.keys():
+                negative = -1 * val["NEGATIVE"]
+            
+            # vader
+            if 'pos' in val.keys():
+                positive = val["pos"]
+            if 'neg' in val.keys(): 
+                negative = val["neg"]
+            if 'neu' in val.keys():
+                if val["neu"]  > 0:
+                    positive = val["neu"]
+                elif val["neu"]  < 0:
+                    negative = val["neu"]
+                
+            # finbert 
+            if 'positive' in val.keys():
+                positive = val["positive"]
+            if 'negative' in val.keys():
+                negative = -1 * val["negative"]
+                
+            if 'neutral' in val.keys():
+                switch = random.random()
+                if switch == 0:
+                    positive = val["neutral"]
+                else:
+                    negative = -1 * val["neutral"]
+
+            new_group.append({
+                "date": key,
+                "negative": str(negative),
+                "positive": str(positive) 
+            })
+            
+        return new_group
     
 
 ### PRICE PREDICTION: ML models
