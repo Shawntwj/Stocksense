@@ -3,6 +3,7 @@ import datetime
 from flask import Flask
 from flask_cors import CORS
 import pandas as pd
+import numpy as np
 
 
 # libraries for Stocktwits
@@ -34,9 +35,17 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from happytransformer import HappyTextClassification
 
 # libraries for prediction
+from pandas_datareader import data as stockdata
 from sklearn.metrics import mean_squared_error
 from pmdarima import auto_arima
 from statsmodels.tsa.arima.model import ARIMA
+# python -m pip install prophet
+from prophet import Prophet
+from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, LSTM
+from fastai.tabular.all import add_datepart
+from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 CORS(app)
