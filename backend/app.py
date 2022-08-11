@@ -344,6 +344,21 @@ def flair_sentiment(data):
         row['score'] = score
     return data
 
+def vader_sentiment(data):
+    sia = SentimentIntensityAnalyzer()  # Load model
+    if len(data) == 0:
+        return data
+    for row in data:
+        vs = sia.polarity_scores(row["content"])
+        score = vs["compound"]
+        del vs['compound']
+        sentiment = max(vs, key=vs.get)
+
+        row['sentiment'] = sentiment
+        row['score'] = score
+    return data
+
+
 # ML models
 def autoArimaML(symbol, df):
     close = df['Close']
