@@ -459,6 +459,231 @@ def arima(symbol, df):
 
     return model_predictions[-1], df['Close'][symbol].to_list()[-1], MSE_error, graphData
 
+def prophet(symbol, df):
+    close = df['Close']
+
+    #preparing data
+    close.reset_index(inplace = True)
+    close = close[['Date', symbol]]
+    close.rename(columns={symbol: 'y', 'Date':'ds'}, inplace = True)
+
+    #splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(test_size)
+
+    #fit the model
+    model = Prophet(daily_seasonality=True)
+    model.fit(train)
+
+    #predictions
+    close_prices = model.make_future_dataframe(periods=len(test)+1)
+    forecast = model.predict(close_prices)
+    today_prediction = forecast['yhat'].to_list()[-1]
+
+    # combine test and forecast dataframes
+    forecast = pd.DataFrame(forecast,index = test.index,columns=['yhat'])
+    result = pd.concat([forecast, test], axis = 1)
+    #rmse
+    forecast_valid = forecast['yhat'][-test_size:]
+    MSE_error = mean_squared_error(test['y'], forecast_valid)
+
+    # renaming columns in result
+    result.rename(columns = {'yhat':'Prediction', 'y': symbol}, inplace = True)
+
+    graphData = []
+    for index, row in train.iterrows():
+        dateobj = {"date":str(row[0].date()), "train":row[1] }
+        graphData.append(dateobj)
+
+    for index, row in result.iterrows():
+        dateobj = {"date":row["ds"], "test":row[symbol], "predicted":row["Prediction"] }
+        graphData.append(dateobj)
+
+
+    return today_prediction, test['y'].to_list()[-1], MSE_error, graphData
+
+def lstm(symbol, df):
+    close = df['Close']
+
+    #preparing data
+    close.reset_index(inplace = True)
+    close = close[['Date', symbol]]
+
+    #splitting the data
+    train_ratio = 0.8
+    train_size = int(df.shape[0] * train_ratio)
+    test_size = df.shape[0] - train_size
+
+    train = close.head(train_size)
+    test = close.tail(-test_size)
+
+    close.drop('Date', axis=1, inplace = True)
+
+    #convert into x and y
+    scaler = MinMaxScaler(feature_range=(0,1))
+    scaled_data = scaler.fit_transform(close)
+
+    x_train, y_train = [], []
+    for i in range(60,len(train)):
+        x_train.append(scaled_data[i-60:i,0])
+        y_train.append(scaled_data[i,0])
+    x_train, y_train = np.array(x_train), np.array(y_train)
+    x_train = np.reshape(x_train, (x_train.shape[0],x_train.shape[1],1))
+
+    # create and fit the LSTM network
+    model = Sequential()
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(x_train.shape[1],1)))
+    model.add(LSTM(units=50))
+    model.add(Dense(1))
+
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.fit(x_train, y_train, epochs=1, batch_size=1, verbose=2)
+
+    #prediction
+    inputs = close[len(close) - len(test) - 60:].values
+    inputs = inputs.reshape(-1,1)
+    inputs  = scaler.transform(inputs)
+
+    X_test = []
+    for i in range(60,inputs.shape[0]+1):
+        X_test.append(inputs[i-60:i,0])
+    X_test = np.array(X_test)
+
+    X_test = np.reshape(X_test, (X_test.shape[0],X_test.shape[1],1))
+    closing_price = model.predict(X_test)
+    closing_price = scaler.inverse_transform(closing_price)
+    today_prediction = closing_price[-1]
+    closing_price = closing_price[:-1]
+
+    graphData = []
+    for index, row in train.iterrows():
+        dateobj = {"date":str(row[0].date()), "train":row[1] }
+
+        graphData.append(dateobj)
+    i = 0
+    for index, row in test.iterrows():
+        dateobj = {"date":str(row[0].date()), "test":row[1], "predicted":closing_price[i] }
+        graphData.append(dateobj)
+        i += 1
+     
+
+    #rmse
+    MSE_error = mean_squared_error(test[symbol], closing_price)
+
+    test['Predictions'] = closing_price
+    test.drop(columns = ['Date'], inplace = True)
+
+    return today_prediction[0], closing_price[-1][0], MSE_error, graphData
+
+def linear_regression(symbol, df):
+    global data
+    
+    graph = df 
+
+    df["Date"] = df.index
+    df["Date"] = pd.to_datetime(df['Date'])
+
+    df['Date'] = pd.to_datetime(df.Date,format='%Y-%m-%d')
+    df.index = df['Date']
+
+    #sorting
+    data = df.sort_index(ascending=True, axis=0)
+
+    #creating a separate dataset
+    new_data = pd.DataFrame(index=range(0,len(df)),columns=['Date', 'Close'])
+
+    for i in range(0,len(data)):
+        new_data['Date'][i] = data['Date'][i]
+        new_data['Close'][i] = data['Close'].iloc[i][symbol]
+
+    graph = new_data[["Date","Close"]]
+    #create features
+    add_datepart(new_data, 'Date')
+    new_data.drop('Elapsed', axis=1, inplace=True)  #elapsed will be the time stamp
+
+    new_data['mon_fri'] = 0
+    new_data
+    for i in range(0,len(new_data)):
+        if (new_data['Dayofweek'][i] == 0 or new_data['Dayofweek'][i] == 4):
+            new_data.at[i,'mon_fri'] = 1
+        else:
+            new_data.at[i,'mon_fri'] = 0
+
+    end = int(len(new_data) * 0.8)
+
+    train = new_data[:end]
+    valid = new_data[end:]
+    
+    x_train = train.drop('Close', axis=1)
+    y_train = train['Close']
+    x_valid = valid.drop('Close', axis=1)
+    y_valid = valid['Close']
+
+    model = LinearRegression()
+    model.fit(x_train,y_train)
+
+    #make predictions and find the rmse
+    preds = model.predict(x_valid)
+    rms=np.sqrt(np.mean(np.power((np.array(y_valid)-np.array(preds)),2)))
+
+    MSE_error = rms
+    yst_price = df.iloc[-2]["Close"][symbol]
+
+    tdy = pd.DataFrame([datetime.date.today()],columns=["Date"])
+
+    add_datepart(tdy, 'Date')
+    tdy.drop('Elapsed', axis=1, inplace=True)  #elapsed will be the time stamp
+    tdy['mon_fri'] = 1
+    if (tdy['Dayofweek'][0] == 0 or tdy['Dayofweek'][0] == 4):
+        tdy['mon_fri'] = 1
+    else:
+        tdy['mon_fri'] = 0
+
+    train = graph[:end]
+    test = graph[end:]
+    
+    graphData = []
+    for index, row in train.iterrows():
+        dateobj = {"date":str(row[0].date()), "train":row[1] }
+        graphData.append(dateobj)
+
+    i = 0
+    for index, row in test.iterrows():
+
+        dateobj = {"date":str(row[0].date()), "test":row[1], "predicted":preds[i] }
+        graphData.append(dateobj)
+        i += 1
+
+    tdy_preds = model.predict(tdy)
+    tdy_preds
+    # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
+    return tdy_preds[0], yst_price, MSE_error, graphData
+
+def predict_price(symbol, ml_model):
+    start_date = '2019-01-01'
+
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    end_date = yesterday
+
+    panel_data = stockdata.DataReader([symbol], 'yahoo', start_date, end_date)
+
+    # ml model: auto arima, arima, prohphet, linear regression, LSTM
+    if ml_model == 'autoarima':
+        return autoArimaML(symbol, panel_data)
+    elif ml_model == 'arima':
+        return arima(symbol, panel_data)
+    elif ml_model == 'prophet':
+        return prophet(symbol, panel_data)
+    elif ml_model == 'LSTM':
+        return lstm(symbol, panel_data)
+    else:
+        return linear_regression(symbol, panel_data)
+
 if __name__ == '__main__':
     # app.debug = True
     app.run(debug = True, host='0.0.0.0', port=8000)
