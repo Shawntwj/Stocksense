@@ -30,7 +30,13 @@ nltk.download('stopwords')
 
 # libraries for sentiment analysis
 import flair
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from happytransformer import HappyTextClassification
 
+# libraries for prediction
+from sklearn.metrics import mean_squared_error
+from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
 
 app = Flask(__name__)
 CORS(app)
@@ -53,9 +59,7 @@ def first_check(symbol):
 def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
-
         # end_date = datetime.datetime.today()
-
         # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
         # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
@@ -96,9 +100,7 @@ def getStocktwits(symbol, senti_type):
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
                     # if (start_date == end_date):
-
                     # time_created_data = timelist[1][:-1]
-
                     # username_data = main_body[i]["user"]["username"]
                     # name_data = main_body[i]["user"]["name"]
                     # join_date_data = main_body[i]["user"]["join_date"]
@@ -358,6 +360,26 @@ def vader_sentiment(data):
         row['score'] = score
     return data
 
+def finbert_sentiment(data):
+    happy_tc = HappyTextClassification("BERT", "ProsusAI/finbert", num_labels=3)  # Load model
+    if len(data) == 0:
+        return data
+    for row in data:
+        result = happy_tc.classify_text(row["content"][:512])
+        sentiment = result.label
+        score = result.score
+        row['sentiment'] = sentiment
+        row['score'] = score
+    return data
+
+def getDataSentiment(data, senti_type):
+    if (senti_type == "flair"):
+        data = flair_sentiment(data)
+    elif (senti_type == "vader"):
+        data = vader_sentiment(data)
+    else:
+        data = finbert_sentiment(data)
+    return data
 
 # ML models
 def autoArimaML(symbol, df):
