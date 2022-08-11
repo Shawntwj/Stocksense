@@ -336,6 +336,19 @@ def remove_stop_words(tokenized_text, stopWords):
             wordlist_wo_stopwords.append(w)
     return wordlist_wo_stopwords
 
+def getCleanedContent(data):
+    stopWords = set(stopwords.words('english'))
+    cleaned_data = []
+    for item in data:
+        item["content"] = item["content"].lower()
+        item["content"] = remove_hashtag_mentions_urls(item["content"])
+        item["content"] = remove_emoji(item["content"])
+        item["content"] = tokenization(item["content"])
+        item["content"] = remove_stop_words(item["content"], stopWords)
+        item["content"] = ' '.join(item["content"])
+        cleaned_data.append(item)
+    return cleaned_data
+
 # Sentiment
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
