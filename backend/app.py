@@ -55,6 +55,7 @@ CORS(app)
 def healthCheck():
     return 200
 
+### WEBSCRAPERS: social media 
 # Stocktwits scraper
 def first_check(symbol):
     url = f"https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json?filter=top&limit=20"
@@ -349,7 +350,7 @@ def getCleanedContent(data):
         cleaned_data.append(item)
     return cleaned_data
 
-# Sentiment
+# SENTIMENT ANALYSIS: NLP models
 def flair_sentiment(data):
     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
     if len(data) == 0:
@@ -403,7 +404,39 @@ def getDataSentiment(data, senti_type):
         data = finbert_sentiment(data)
     return data
 
-# ML models
+
+# Average Sentiment 24 hours
+def sentiment_score(dct, senti_type):
+    if len(dct) == 0:
+        return 0
+    sentiment = []
+    score = []
+
+    for post in dct:
+        if senti_type == "vader":
+            score.append(float(post['score']))
+        else:
+            sentiment.append(post['sentiment'])
+            score.append(float(post['score']))
+
+    if (senti_type == "vader"):
+        return statistics.mean(score)
+    else:
+        df = pd.DataFrame({'sentiment':sentiment, 'score':score})
+
+        for index, row in df.iterrows():
+
+            if row['sentiment'].lower() == 'negative':
+                df.at[index,"score"] = 0 - row['score']
+            else:
+                df.at[index,"score"] = row['score']
+
+        return df['score'].mean()
+ 
+
+    
+
+### PRICE PREDICTION: ML models
 def autoArimaML(symbol, df):
     close = df['Close']
 
