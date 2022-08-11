@@ -99,7 +99,7 @@ function DashboardContent() {
   };
 
 
-  const [model, setModel] = React.useState('flair');
+  const [model, setModel] = React.useState('vader');
   const [stock, setStock] = React.useState('aapl');
   const [data, setData] = React.useState('twitter');
   const [ml, setMl] = React.useState('autoarima');
@@ -270,9 +270,6 @@ function DashboardContent() {
                         <MenuItem key={"AAPL"} value="aapl">
                           AAPL
                         </MenuItem>
-                        <MenuItem key={"RUI"} value="rui">
-                          RUI
-                        </MenuItem>
                         <MenuItem key={"AMZN"} value="amzn">
                           AMZN
                         </MenuItem>
@@ -303,9 +300,6 @@ function DashboardContent() {
                       >
                         <MenuItem key={"vader"} value="vader">
                           Vader
-                        </MenuItem>
-                        <MenuItem key={"flair"} value="flair">
-                          Flair
                         </MenuItem>
                         <MenuItem key={"finbert"} value="finbert">
                           Finbert

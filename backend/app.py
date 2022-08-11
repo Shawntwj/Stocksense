@@ -1,6 +1,7 @@
+import random
 import time
 import datetime
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -31,9 +32,10 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 nltk.download('stopwords')
+nltk.download('vader_lexicon')
 
 # libraries for sentiment analysis
-import flair
+# import flair
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from happytransformer import HappyTextClassification
 
@@ -109,7 +111,7 @@ def mainFunction(source, symbol, senti_type, ml_type):
 
 @app.route('/')
 def healthCheck():
-    return 200
+    return '200'
 
 ### WEBSCRAPERS: social media 
 # Stocktwits scraper
@@ -123,8 +125,9 @@ def first_check(symbol):
 
 # @app.route('/api/stocktwits/<string:symbol>/<string:senti_type>/')
 def getStocktwits(symbol, senti_type):
+    data = []
+
     if (first_check(symbol)):
-        data = []
         start_date = datetime.datetime.now()
         end_date = start_date - datetime.timedelta(days=1)
 
@@ -143,7 +146,6 @@ def getStocktwits(symbol, senti_type):
             if data_dict["response"]["status"] == 200:
                 main_body = data_dict["messages"]
                 for i in range(len(main_body)):
-                    # person_id_data = main_body[i]["id"]
                     content_data = main_body[i]["body"]
 
                     content_data = content_data.replace("’", "'")
@@ -171,7 +173,8 @@ def getStocktwits(symbol, senti_type):
 
             j += 1
 
-        return get_result(data, senti_type)
+    return get_result(data, senti_type)
+    
 
 # News scraper
 def getArticleSummary(parsed_news, start_date):
@@ -188,10 +191,7 @@ def getArticleSummary(parsed_news, start_date):
             article.parse()
             article.nlp()
 
-            # dicti['title']=article.title
             dicti['content']=article.text
-            # dicti['summary']=article.summary
-            # dicti['link']=ind[1]
             if article.publish_date == None:
                 dicti['datetime']=start_date
             else:
@@ -261,8 +261,6 @@ def reddit_sentiment_comment(search, start, end, subreddit):
 
     s = datetime.datetime.strptime(start, '%d/%m/%Y')
     e = datetime.datetime.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
     comments = []
 
     S = api.search_comments(subreddit=subreddit, after=s, before=e)  # Pull posts within date range
@@ -282,8 +280,6 @@ def reddit_sentiment_post(search, start, end, subreddit):
     api = PushshiftAPI()
     s = datetime.datetime.strptime(start, '%d/%m/%Y')
     e = datetime.datetime.strptime(end, '%d/%m/%Y')
-    start_date = time.mktime(datetime.datetime.strptime(start, "%d/%m/%Y").timetuple())
-    end_date = time.mktime(datetime.datetime.strptime(end, "%d/%m/%Y").timetuple())
     posts = []
 
     S = api.search_submissions(subreddit=subreddit, after=s, before=e) # Pull posts within date range
@@ -360,23 +356,23 @@ def get_cleaned_content(data):
     return cleaned_data
 
 # SENTIMENT ANALYSIS: NLP models
-def flair_sentiment(data):
-    flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
-    if len(data) == 0:
-        return data
-    for row in data:
-        s = flair.data.Sentence(row["content"])
-        flair_sentiment.predict(s)
-        if len(s.labels) == 0:
-            sentiment = "NEUTRAL"
-            score = 0
-        else:
-            sentiment = str(s.labels[0]).split()[0]
-            score = str(s.labels[0]).split()[1][1:-1]
+# def flair_sentiment(data):
+#     flair_sentiment = flair.models.TextClassifier.load('en-sentiment')  # Load model
+#     if len(data) == 0:
+#         return data
+#     for row in data:
+#         s = flair.data.Sentence(row["content"])
+#         flair_sentiment.predict(s)
+#         if len(s.labels) == 0:
+#             sentiment = "NEUTRAL"
+#             score = 0
+#         else:
+#             sentiment = str(s.labels[0]).split()[0]
+#             score = str(s.labels[0]).split()[1][1:-1]
 
-        row['sentiment'] = sentiment
-        row['score'] = score
-    return data
+#         row['sentiment'] = sentiment
+#         row['score'] = score
+#     return data
 
 def vader_sentiment(data):
     sia = SentimentIntensityAnalyzer()  # Load model
@@ -406,7 +402,8 @@ def finbert_sentiment(data):
 
 def get_data_sentiment(data, senti_type):
     if (senti_type == "flair"):
-        data = flair_sentiment(data)
+        # data = flair_sentiment(data)
+        pass
     elif (senti_type == "vader"):
         data = vader_sentiment(data)
     else:
@@ -479,8 +476,6 @@ def sentiment_by_datetime(data):
         new_group = []
         switch = 0
         for key, val in sentiment_group.items():
-            # print(key)
-            # print(val)
             
             # flair
             positive = 0.0
@@ -718,7 +713,6 @@ def lstm(symbol, df):
         dateobj = {"date":str(row[0].date()), "test":row[1], "predicted":closing_price[i] }
         graphData.append(dateobj)
         i += 1
-     
 
     #rmse
     MSE_error = mean_squared_error(test[symbol], closing_price)
@@ -808,8 +802,7 @@ def linear_regression(symbol, df):
         i += 1
 
     tdy_preds = model.predict(tdy)
-    tdy_preds
-    # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
+
     return tdy_preds[0], yst_price, MSE_error, graphData
 
 def predict_price(symbol, ml_model):
