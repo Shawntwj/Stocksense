@@ -4,10 +4,13 @@ from flask import Flask
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
-
+import statistics
+from collections import Counter
 
 # libraries for Stocktwits
 import requests
+import json
+import os
 
 # libraries for News
 from GoogleNews import GoogleNews
@@ -50,6 +53,59 @@ from sklearn.linear_model import LinearRegression
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/api/<string:source>/<string:symbol>/<string:senti_type>/<string:ml_type>/")
+def mainFunction(source, symbol, senti_type, ml_type):
+    """assumes values correspond to the excel & all lowercase"""
+    # scrape, clean, sentiment analysis
+    if source == 'news':
+        response = getNews(symbol, senti_type)
+    elif source == 'stocktwits':
+        response = getStocktwits(symbol, senti_type)
+    elif source == 'twitter':
+        response = getTwitter(symbol, senti_type)
+    elif source == 'reddit:comment':
+        response = getRedditComments(symbol, senti_type)
+        source = 'reddit'
+    elif source == 'reddit:post':
+        response = getRedditPosts(symbol, senti_type)
+        source = 'reddit'
+    data = response["data"]
+    sentiment = response["score"]
+    senti_grouped = response["senti_grouped"]
+    top10 = response["top10"]
+
+    # extract correlation score from exported excel
+    if (source == 'twitter' and symbol == 'msft') or symbol == "ater":
+        correlation = 0
+    else:
+        if senti_type == 'flair':
+            senti_key = 'Flair Sentiment'
+        else:
+            senti_key = senti_type.capitalize()
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+        corr_df = pd.read_excel(os.path.join(__location__, "sentiment_correlation.xlsx"))
+        platform_corr_df = corr_df[corr_df['Platform']==source]
+        row_corr_df = platform_corr_df[platform_corr_df['Ticket']==symbol.upper()]
+        corr_series = row_corr_df[senti_key+' Score']
+        correlation = corr_series.values[0]
+
+    # ML models
+    todayPredict, ytdClose, MSE_error, graphData = predict_price(symbol, ml_type)
+
+    decision = decision_tree(sentiment, correlation, todayPredict, ytdClose)
+
+    # wordcloud
+    words_li = []
+    for obj in data:
+        words_li += obj["content"].split()
+    dic = Counter(words_li)
+    # most_occur = dic.most_common(5)
+    words = []
+    for [k,v] in dic.items():
+        words.append({"text":k, "value":v})
+
+    return jsonify({"decision":decision, "error":str(MSE_error), "todayPredict":str(todayPredict), "ytdClose":str(ytdClose), "score": str(sentiment), "words":words, "data":senti_grouped, "corr": str(correlation), "top10": top10, "graphData": graphData})
 
 @app.route('/')
 def healthCheck():
