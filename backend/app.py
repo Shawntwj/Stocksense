@@ -69,10 +69,6 @@ def first_check(symbol):
 def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
-        # end_date = datetime.datetime.today()
-        # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
         start_date = datetime.datetime.now()
         end_date = start_date - datetime.timedelta(days=1)
 
@@ -109,40 +105,17 @@ def getStocktwits(symbol, senti_type):
 
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
-                    # if (start_date == end_date):
-                    # time_created_data = timelist[1][:-1]
-                    # username_data = main_body[i]["user"]["username"]
-                    # name_data = main_body[i]["user"]["name"]
-                    # join_date_data = main_body[i]["user"]["join_date"]
-                    # official_data = main_body[i]["user"]["official"]
-                    # followers_data = main_body[i]["user"]["followers"]
-                    # source_data =  main_body[i]["source"]["title"]
-                    # try:
-                    #     likes_data =  main_body[i]["likes"]["total"]
-                    # except:
-                    #     likes_data = 0
-
                     postid = data_dict["cursor"]["max"]
                     postid = "&max=" + str(postid)
 
                     data.append({
-                        # "person_id": person_id_data,
                         "content": content_data,
                         "datetime": newdatetime,
-                        # "date_created": date_created_data,
-                        # "time_created": time_created_data,
-                        # "username": username_data,
-                        # "name": name_data,
-                        # "join_date": join_date_data,
-                        # "official": official_data,
-                        # "followers": followers_data,
-                        # "source": source_data,
-                        # "likes": likes_data
                     })
 
             j += 1
 
-        return getResult(data, senti_type)
+        return get_result(data, senti_type)
 
 # News scraper
 def getArticleSummary(parsed_news, start_date):
@@ -199,7 +172,7 @@ def getNews(symbol, senti_type):
     start_date = datetime.datetime.now()
     parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news, start_date)
-    return getResult(data, senti_type)
+    return get_result(data, senti_type)
 
 # Twitter scraper
 # @app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
@@ -220,16 +193,11 @@ def getTwitter(symbol, senti_type):
         # and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
         if len(tweet.content.split())>=5:
             data.append({
-                # "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
-                # "followers": tweet.user.followersCount,
-                # "comments": tweet.replyCount,
-                # "shares": tweet.retweetCount,
-                # "likes": tweet.likeCount
             })
 
-    return getResult(data, senti_type)
+    return get_result(data, senti_type)
 
 # Reddit scraper
 def reddit_sentiment_comment(search, start, end, subreddit):
@@ -247,11 +215,6 @@ def reddit_sentiment_comment(search, start, end, subreddit):
             if comment.body != '[removed]' and comment.body != '[deleted]' and search[0] in comment.body or search[1] in comment.body or search[2] in comment.body or search[3] in comment.body or search[4] in comment.body: # Remove the deleted posts
                 comments.append({
                     'content':comment.body,
-                    # 'username':comment.author_fullname,
-                    # 'score':comment.score,
-                    # 'comment_id':comment.id,
-                    # 'subreddit':comment.subreddit,
-                    # 'parent_id':comment.parent_id,
                     'datetime':datetime.datetime.fromtimestamp(comment.created)
                 })  # Retrieve post data and append to dataframe
         except:
@@ -273,13 +236,6 @@ def reddit_sentiment_post(search, start, end, subreddit):
         try: # Try/except to catch any erroneous post pulls
             if post.title != '[removed]' and post.title != '[deleted]'and search[0] in post.title or search[1] in post.title or search[2] in post.title or search[3] in post.title or search[4] in post.title:
                 posts.append({
-                    # 'title':post.title,
-                    # 'score':post.score,
-                    # 'upvote_ratio':post.upvote_ratio,
-                    # 'id':post.id,
-                    # 'subreddit':post.subreddit,
-                    # 'url':post.url,
-                    # 'num_comments':post.num_comments,
                     'content':post.selftext,
                     'datetime':datetime.datetime.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
@@ -292,15 +248,12 @@ def getReddit(redditType, symbol, senti_type):
     today = datetime.datetime.today()
     start_date = (today - datetime.timedelta(days=1)).strftime('%d/%m/%Y')
     end_date = (today + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
-    # """convert date format to %d/%m/%Y"""
-    # start = "/".join(start_date.split("-")[::-1])
-    # end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
     sub = "stocks"
     if redditType == "comment":
         data = reddit_sentiment_comment(symbol, start_date, end_date, sub)
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start_date, end_date, sub)
-    return getResult(data, senti_type)
+    return get_result(data, senti_type)
 
 # @app.route('/api/reddit:comment/<string:symbol>/<string:senti_type>/')
 def getRedditComments(symbol, senti_type):
@@ -337,7 +290,7 @@ def remove_stop_words(tokenized_text, stopWords):
             wordlist_wo_stopwords.append(w)
     return wordlist_wo_stopwords
 
-def getCleanedContent(data):
+def get_cleaned_content(data):
     stopWords = set(stopwords.words('english'))
     cleaned_data = []
     for item in data:
@@ -395,7 +348,7 @@ def finbert_sentiment(data):
         row['score'] = score
     return data
 
-def getDataSentiment(data, senti_type):
+def get_data_sentiment(data, senti_type):
     if (senti_type == "flair"):
         data = flair_sentiment(data)
     elif (senti_type == "vader"):
@@ -513,9 +466,9 @@ def sentiment_by_datetime(data):
             
         return new_group
 
-def getResult(data, senti_type):
-    cleanedData = getCleanedContent(data)
-    sentimentData = getDataSentiment(cleanedData, senti_type)
+def get_result(data, senti_type):
+    cleanedData = get_cleaned_content(data)
+    sentimentData = get_data_sentiment(cleanedData, senti_type)
     top10 = top_10(sentimentData)
     score = sentiment_score(sentimentData, senti_type)
     senti_grouped = sentiment_by_datetime(sentimentData)
