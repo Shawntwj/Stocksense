@@ -141,7 +141,7 @@ def getStocktwits(symbol, senti_type):
 
             j += 1
 
-        return data
+        return getResult(data, senti_type)
 
 # News scraper
 def getArticleSummary(parsed_news, start_date):
@@ -198,7 +198,7 @@ def getNews(symbol, senti_type):
     start_date = datetime.datetime.now()
     parsed_news = getGoogleNewsLinks(symbol, start_date)
     data = getArticleSummary(parsed_news, start_date)
-    return data
+    return getResult(data, senti_type)
 
 # Twitter scraper
 # @app.route('/api/twitter/<string:symbol>/<string:senti_type>/')
@@ -228,7 +228,7 @@ def getTwitter(symbol, senti_type):
                 # "likes": tweet.likeCount
             })
 
-    return data
+    return getResult(data, senti_type)
 
 # Reddit scraper
 def reddit_sentiment_comment(search, start, end, subreddit):
@@ -299,7 +299,7 @@ def getReddit(redditType, symbol, senti_type):
         data = reddit_sentiment_comment(symbol, start_date, end_date, sub)
     elif  redditType == "post":
         data = reddit_sentiment_post(symbol, start_date, end_date, sub)
-    return data
+    return getResult(data, senti_type)
 
 # @app.route('/api/reddit:comment/<string:symbol>/<string:senti_type>/')
 def getRedditComments(symbol, senti_type):
@@ -402,6 +402,11 @@ def getDataSentiment(data, senti_type):
     else:
         data = finbert_sentiment(data)
     return data
+
+def getResult(data, senti_type):
+    cleanedData = getCleanedContent(data)
+    sentimentData = getDataSentiment(cleanedData, senti_type)
+    return {"data": sentimentData}
 
 # ML models
 def autoArimaML(symbol, df):
