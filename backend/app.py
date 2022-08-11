@@ -5,7 +5,6 @@ from flask_cors import CORS
 import pandas as pd
 import numpy as np
 
-
 # libraries for Stocktwits
 import requests
 
@@ -68,10 +67,6 @@ def first_check(symbol):
 def getStocktwits(symbol, senti_type):
     if (first_check(symbol)):
         data = []
-        # end_date = datetime.datetime.today()
-        # start_date = (end_date - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-        # start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        # end_date = datetime.datetime.strptime(end_date.strftime('%Y-%m-%d'), "%Y-%m-%d")
         start_date = datetime.datetime.now()
         end_date = start_date - datetime.timedelta(days=1)
 
@@ -108,35 +103,12 @@ def getStocktwits(symbol, senti_type):
 
                     start_date = datetime.datetime.strptime(date_created_data, "%Y-%m-%d")
 
-                    # if (start_date == end_date):
-                    # time_created_data = timelist[1][:-1]
-                    # username_data = main_body[i]["user"]["username"]
-                    # name_data = main_body[i]["user"]["name"]
-                    # join_date_data = main_body[i]["user"]["join_date"]
-                    # official_data = main_body[i]["user"]["official"]
-                    # followers_data = main_body[i]["user"]["followers"]
-                    # source_data =  main_body[i]["source"]["title"]
-                    # try:
-                    #     likes_data =  main_body[i]["likes"]["total"]
-                    # except:
-                    #     likes_data = 0
-
                     postid = data_dict["cursor"]["max"]
                     postid = "&max=" + str(postid)
 
                     data.append({
-                        # "person_id": person_id_data,
                         "content": content_data,
                         "datetime": newdatetime,
-                        # "date_created": date_created_data,
-                        # "time_created": time_created_data,
-                        # "username": username_data,
-                        # "name": name_data,
-                        # "join_date": join_date_data,
-                        # "official": official_data,
-                        # "followers": followers_data,
-                        # "source": source_data,
-                        # "likes": likes_data
                     })
 
             j += 1
@@ -158,10 +130,7 @@ def getArticleSummary(parsed_news, start_date):
             article.parse()
             article.nlp()
 
-            # dicti['title']=article.title
             dicti['content']=article.text
-            # dicti['summary']=article.summary
-            # dicti['link']=ind[1]
             if article.publish_date == None:
                 dicti['datetime']=start_date
             else:
@@ -219,13 +188,8 @@ def getTwitter(symbol, senti_type):
         # and tweet.likeCount>=200 and tweet.user.followersCount>=50 and tweet.retweetCount>=5:
         if len(tweet.content.split())>=5:
             data.append({
-                # "username": tweet.user.username,
                 "content": tweet.content,
                 "datetime": tweet.date,
-                # "followers": tweet.user.followersCount,
-                # "comments": tweet.replyCount,
-                # "shares": tweet.retweetCount,
-                # "likes": tweet.likeCount
             })
 
     return getResult(data, senti_type)
@@ -246,11 +210,6 @@ def reddit_sentiment_comment(search, start, end, subreddit):
             if comment.body != '[removed]' and comment.body != '[deleted]' and search[0] in comment.body or search[1] in comment.body or search[2] in comment.body or search[3] in comment.body or search[4] in comment.body: # Remove the deleted posts
                 comments.append({
                     'content':comment.body,
-                    # 'username':comment.author_fullname,
-                    # 'score':comment.score,
-                    # 'comment_id':comment.id,
-                    # 'subreddit':comment.subreddit,
-                    # 'parent_id':comment.parent_id,
                     'datetime':datetime.datetime.fromtimestamp(comment.created)
                 })  # Retrieve post data and append to dataframe
         except:
@@ -272,13 +231,6 @@ def reddit_sentiment_post(search, start, end, subreddit):
         try: # Try/except to catch any erroneous post pulls
             if post.title != '[removed]' and post.title != '[deleted]'and search[0] in post.title or search[1] in post.title or search[2] in post.title or search[3] in post.title or search[4] in post.title:
                 posts.append({
-                    # 'title':post.title,
-                    # 'score':post.score,
-                    # 'upvote_ratio':post.upvote_ratio,
-                    # 'id':post.id,
-                    # 'subreddit':post.subreddit,
-                    # 'url':post.url,
-                    # 'num_comments':post.num_comments,
                     'content':post.selftext,
                     'datetime':datetime.datetime.fromtimestamp(post.created)
                 })  # Retrieve post data and append to dataframe
@@ -291,9 +243,6 @@ def getReddit(redditType, symbol, senti_type):
     today = datetime.datetime.today()
     start_date = (today - datetime.timedelta(days=1)).strftime('%d/%m/%Y')
     end_date = (today + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
-    # """convert date format to %d/%m/%Y"""
-    # start = "/".join(start_date.split("-")[::-1])
-    # end = (datetime.datetime.strptime(start, "%d/%m/%Y") + datetime.timedelta(days=1)).strftime("%d/%m/%Y")
     sub = "stocks"
     if redditType == "comment":
         data = reddit_sentiment_comment(symbol, start_date, end_date, sub)
@@ -621,7 +570,7 @@ def linear_regression(symbol, df):
     data = df.sort_index(ascending=True, axis=0)
 
     #creating a separate dataset
-        new_data = pd.DataFrame(columns=['Date', 'Close'])
+    new_data = pd.DataFrame(columns=['Date', 'Close'])
 
     for i in range(0,len(data)):
         temp_df = pd.DataFrame([[data['Date'][i],data['Close'].iloc[i][symbol] ]], columns=['Date', 'Close'])
