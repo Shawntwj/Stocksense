@@ -717,8 +717,8 @@ def linear_regression(symbol, df):
     data = df.sort_index(ascending=True, axis=0)
 
     #creating a separate dataset
-        new_data = pd.DataFrame(columns=['Date', 'Close'])
 
+    new_data = pd.DataFrame(columns=['Date', 'Close'])
     for i in range(0,len(data)):
         temp_df = pd.DataFrame([[data['Date'][i],data['Close'].iloc[i][symbol] ]], columns=['Date', 'Close'])
         new_data = new_data.append(temp_df, ignore_index=True)
@@ -785,6 +785,16 @@ def linear_regression(symbol, df):
     tdy_preds
     # json_result = {'today_price': tdy_preds, 'yesterday_price':yst_price, 'rmse': rms, }
     return tdy_preds[0], yst_price, MSE_error, graphData
+
+def top_10(data):
+    if len(data) == 0:
+        return []
+    else:
+        df = pd.DataFrame(data)
+        df['score'] = df['score'].astype(float)
+        result = df.sort_values(by=['score'], ascending=False)
+        top10 = result.to_dict("records")[:10]
+        return top10
 
 def predict_price(symbol, ml_model):
     start_date = '2019-01-01'
