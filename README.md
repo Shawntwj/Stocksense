@@ -1,13 +1,8 @@
-This is a project to help learn about trading in the markets by setting up a simulation and testing your trading strategies to see if they work out in a simulated environment.
+StockSense is a powerful web application that combines real-time stock data with sentiment analysis to provide users with comprehensive market insights.
+Features
 
-This environment is based on past data up to 10 years and includes top news (up to 3-5 headlines) and earning reports (every quarter) for that stock for you to backtest your strategy. 
-
-In the future the web app will be containerized in the meantime to start up the frontend, ensure that node version >= 18.17 is installed
-
-To start the frontend 
-
-`npm run dev`
-
-To start the backend 
-
-`mvn spring-boot`
+- Real-time Stock Data: Get up-to-date information on stock prices, volumes, and other key metrics.
+- Sentiment Analysis: Understand market sentiment through analysis of social media, news articles, and financial forums.
+- Interactive Charts: Visualize stock performance and sentiment trends over time.
+- Personalized Watchlists: Create and manage lists of stocks you're interested in.
+- Alerts: Set up custom alerts for price changes or significant sentiment shifts.
